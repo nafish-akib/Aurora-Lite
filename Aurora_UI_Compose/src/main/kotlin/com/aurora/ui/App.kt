@@ -52,12 +52,14 @@ import com.aurora.browser.ui.components.Process as AuroraProcess
 import com.aurora.browser.ui.components.LogEvent as AuroraLogEvent
 import com.aurora.browser.ui.components.SettingsCoordinator
 import com.aurora.browser.ui.components.Download as ViewerDownload
+import com.aurora.browser.ui.theme.AuroraAnimation
 import com.aurora.data.DataService
 import com.aurora.data.model.BookmarkFolder
 import com.aurora.data.preferences.SessionPreferences
 import com.aurora.data.model.HistoryEntry
 import com.aurora.data.search.SearchEngineRegistry
 import com.aurora.engine.FilePickerRequest
+import com.aurora.ui.theme.accentBackground
 import com.aurora.home.UrlDetector
 import com.aurora.ui.components.NoiseGrain
 import com.aurora.ui.data.MockData
@@ -280,13 +282,15 @@ fun AuroraApp(initialUrl: String? = null) {
             }
         }
 
-        val settings = remember { SettingsCoordinator() }
         LaunchedEffect(Unit) {
             DataService.sessions.defaultSearchEngine.collect { engineId ->
                 val engine = SearchEngineRegistry.byId(engineId)
                 UrlDetector.setSearchEngine(engine)
                 settings.searchEngine = engine.name
             }
+        }
+        LaunchedEffect(settings.animationSpeedMultiplier) {
+            AuroraAnimation.speedMultiplier = settings.animationSpeedMultiplier
         }
 
         val home = remember { HomeCoordinator() }
@@ -1014,7 +1018,7 @@ val featuredCount = MockData.featuredStreamingSites.size
         }
         KeyBridge.onVoice = handleVoiceSearch
 
-        val bgRoot = Color(0xFF070709)
+        val bgRoot = accentBackground()
 
         BackHandler { handleBackPress() }
 

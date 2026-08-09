@@ -128,6 +128,7 @@ import com.aurora.ui.screens.BookmarkManagerScreen
 import com.aurora.ui.screens.HomeScreen
 import com.aurora.ui.screens.TabManagementScreen
 import com.aurora.ui.theme.AuroraColors
+import com.aurora.ui.theme.accentBackground
 import com.aurora.ui.theme.StaggerDelay
 import com.aurora.ui.theme.cardLift
 import com.aurora.ui.theme.focusScale
@@ -581,7 +582,7 @@ fun TelemetryCard(title: String, value: String, subtitle: String, color: Color, 
 
 @Composable
 fun OfflineScreen(onBrowseFiles: () -> Unit, onReadCached: () -> Unit, onReconnect: () -> Unit, focusedIndex: Int = 0) {
-    Box(Modifier.fillMaxSize().background(Color(0xFF0C0C0F)), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(accentBackground()), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.background(AuroraColors.neutral900, RoundedCornerShape(24.dp)).border(1.dp, AuroraColors.white5, RoundedCornerShape(24.dp)).padding(32.dp)) {
             Box(Modifier.size(64.dp).background(AuroraColors.auroraAmber.copy(alpha = 0.1f), RoundedCornerShape(16.dp)).border(1.dp, AuroraColors.auroraAmber.copy(alpha = 0.2f), RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) { Icon(Icons.Default.Wifi, null, Modifier.size(32.dp), AuroraColors.auroraAmber) }
             Text("Connection Lost • Offline Assistant", color = AuroraColors.white, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -608,7 +609,7 @@ fun CrashRecoveryScreen(onRestore: () -> Unit, onHome: () -> Unit, focusedIndex:
 fun PerformanceCenterScreen(processes: List<AuroraProcess>, timeline: List<AuroraLogEvent>, onKillProcess: (Int) -> Unit, onRunDiagnostics: () -> Unit, onBack: () -> Unit, onClearTimeline: () -> Unit = {}, modifier: Modifier = Modifier) {
     val totalMem = processes.sumOf { it.memory }.coerceAtLeast(1)
     val avgCpu = if (processes.isNotEmpty()) (processes.sumOf { it.cpu } / processes.size) else 0
-    Column(modifier = modifier.fillMaxSize().background(Color(0xFF0B0D12)).padding(24.dp)) {
+    Column(modifier = modifier.fillMaxSize().background(accentBackground()).padding(24.dp)) {
         Row(Modifier.fillMaxWidth().border(1.dp, AuroraColors.white5).padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) { Box(Modifier.size(40.dp).background(Brush.linearGradient(listOf(AuroraColors.auroraBlue, AuroraColors.auroraPurple)), RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) { Icon(Icons.Default.Terminal, null, Modifier.size(22.dp), Color.White) }; Column { Text("AURORA TELEMETRY & PERFORMANCE CENTER", color = AuroraColors.white, fontSize = 14.sp, fontWeight = FontWeight.Bold); Text("Real-time system health, process scheduling, and diagnostic data", color = AuroraColors.white40, fontSize = 9.sp) } }
             Box(Modifier.background(AuroraColors.neutral900, RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.white5, RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 8.dp).clickable { onBack() }) { Text("Back to Dashboard", color = AuroraColors.white, fontSize = 11.sp) }

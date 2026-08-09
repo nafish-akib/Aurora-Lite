@@ -2,8 +2,11 @@ package com.aurora.ui.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.aurora.design.theme.LocalAccentColors
+
+val LocalLargerUI = staticCompositionLocalOf { false }
 
 object AuroraColors {
     val auroraBlue: Color get() = com.aurora.browser.ui.theme.AuroraColors.Blue

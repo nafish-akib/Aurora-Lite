@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aurora.browser.state.ErrorState
 import com.aurora.ui.theme.AuroraColors
+import com.aurora.ui.theme.accentBackground
 
 @Composable
 fun LoadErrorScreen(
@@ -76,7 +77,7 @@ fun LoadErrorScreen(
     }
 
     Box(
-        modifier.fillMaxSize().background(Color(0xFF0C0C0F)),
+        modifier.fillMaxSize().background(accentBackground()),
         contentAlignment = Alignment.Center
     ) {
         Column(
