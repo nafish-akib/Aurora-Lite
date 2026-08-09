@@ -1,0 +1,4 @@
+<resources>
+    <style name="Theme.Aurora" parent="android:Theme.DeviceDefault.NoActionBar" />
+</resources>
+

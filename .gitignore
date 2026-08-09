@@ -1,0 +1,25 @@
+# Gradle
+.gradle/
+build/
+!gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# Kotlin
+.kotlin/
+
+# Local
+local.properties
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deprecated engine (excluded from build)
+engine/gecko/
+*.keystore
+*.jks

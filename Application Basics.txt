@@ -1,0 +1,275 @@
+Application Basics
+------------------
+
+Name: Aurora Browser
+Version: 153.0
+Build ID: 20260715202819
+Distribution ID:
+User Agent: Mozilla/5.0 (Android 16; Mobile; rv:153.0) Gecko/153.0 Firefox/153.0
+OS: Linux 36 #1 SMP PREEMPT Tue Jul 14 06:47:39 UTC 2026
+Multiprocess Windows: 1/1
+Fission Windows: 1/1 Enabled by default
+Remote Processes: 1
+Google Location Service Key: Found
+Google Safebrowsing Key: Found
+Mozilla Location Service Key: Found
+Safe Mode: false
+Memory Size (RAM): 5.4 GB
+Disk Space Available: 39.6 GB
+
+Crash Reports for the Last 3 Days
+---------------------------------
+
+Remote Processes
+----------------
+
+Type: GPU
+Count: 1
+
+Add-ons
+-------
+
+Legacy User Stylesheets
+-----------------------
+
+Active: false
+Stylesheets: No stylesheets found
+
+Graphics
+--------
+
+Features
+Window Device Pixel Ratios: 2.857142857142857
+Compositing: WebRender
+Font Visibility Debug Info: Android 12+ - release_version_str=16, release_version=16, manufacturer=samsung, brand=samsung, model=sm-a156e, product=a15xnndxx, chromebook=no
+Asynchronous Pan/Zoom: touch input enabled; autoscroll enabled; smooth pinch-zoom enabled
+WebGL 1 Driver WSI Info: EGL_VENDOR: Android EGL_VERSION: 1.4 Android META-EGL EGL_EXTENSIONS: EGL_ANDROID_front_buffer_auto_refresh EGL_ANDROID_get_native_client_buffer EGL_ANDROID_presentation_time EGL_EXT_surface_CTA861_3_metadata EGL_EXT_surface_SMPTE2086_metadata EGL_KHR_get_all_proc_addresses EGL_KHR_swap_buffers_with_damage EGL_ANDROID_get_frame_timestamps EGL_EXT_gl_colorspace_scrgb EGL_EXT_gl_colorspace_scrgb_linear EGL_EXT_gl_colorspace_display_p3_linear EGL_EXT_gl_colorspace_display_p3 EGL_EXT_gl_colorspace_display_p3_passthrough EGL_EXT_gl_colorspace_bt2020_hlg EGL_EXT_gl_colorspace_bt2020_linear EGL_EXT_gl_colorspace_bt2020_pq EGL_ANDROID_image_native_buffer EGL_ANDROID_native_fence_sync EGL_ANDROID_recordable EGL_EXT_create_context_robustness EGL_EXT_image_gl_colorspace EGL_EXT_pixel_format_float EGL_EXT_protected_content EGL_EXT_yuv_surface EGL_IMG_context_priority EGL_KHR_config_attribs EGL_KHR_create_context EGL_KHR_fence_sync EGL_KHR_gl_colorspace EGL_KHR_gl_renderbuffer_image EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_image EGL_KHR_image_base EGL_KHR_mutable_render_buffer EGL_KHR_no_config_context EGL_KHR_partial_update EGL_KHR_surfaceless_context EGL_KHR_wait_sync EGL_NV_context_priority_realtime
+WebGL 1 Driver Renderer: ARM -- Mali-G57 MC2
+WebGL 1 Driver Version: OpenGL ES 3.2 v1.r38p1
+WebGL 1 Driver Extensions: GL_EXT_debug_marker GL_ARM_rgba8 GL_ARM_mali_shader_binary GL_OES_depth24 GL_OES_depth_texture GL_OES_depth_texture_cube_map GL_OES_packed_depth_stencil GL_OES_rgb8_rgba8 GL_EXT_read_format_bgra GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_standard_derivatives GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_texture_npot GL_OES_vertex_half_float GL_OES_required_internalformat GL_OES_vertex_array_object GL_OES_mapbuffer GL_EXT_texture_format_BGRA8888 GL_EXT_texture_rg GL_EXT_texture_type_2_10_10_10_REV GL_OES_fbo_render_mipmap GL_OES_element_index_uint GL_EXT_shadow_samplers GL_OES_texture_compression_astc GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_hdr GL_KHR_texture_compression_astc_sliced_3d GL_EXT_texture_compression_astc_decode_mode GL_EXT_texture_compression_astc_decode_mode_rgb9e5 GL_KHR_debug GL_EXT_occlusion_query_boolean GL_EXT_disjoint_timer_query GL_EXT_blend_minmax GL_EXT_discard_framebuffer GL_OES_get_program_binary GL_OES_texture_3D GL_EXT_texture_storage GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_OES_surfaceless_context GL_OES_texture_stencil8 GL_EXT_shader_pixel_local_storage GL_ARM_shader_framebuffer_fetch GL_ARM_shader_framebuffer_fetch_depth_stencil GL_ARM_mali_program_binary GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_texture_sRGB_decode GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_KHR_blend_equation_advanced GL_KHR_blend_equation_advanced_coherent GL_OES_texture_storage_multisample_2d_array GL_OES_shader_image_atomic GL_EXT_robustness GL_EXT_draw_buffers_indexed GL_OES_draw_buffers_indexed GL_EXT_texture_border_clamp GL_OES_texture_border_clamp GL_EXT_texture_cube_map_array GL_OES_texture_cube_map_array GL_OES_sample_variables GL_OES_sample_shading GL_OES_shader_multisample_interpolation GL_EXT_shader_io_blocks GL_OES_shader_io_blocks GL_EXT_tessellation_shader GL_OES_tessellation_shader GL_EXT_primitive_bounding_box GL_OES_primitive_bounding_box GL_EXT_geometry_shader GL_OES_geometry_shader GL_ANDROID_extension_pack_es31a GL_EXT_gpu_shader5 GL_OES_gpu_shader5 GL_EXT_texture_buffer GL_OES_texture_buffer GL_EXT_copy_image GL_OES_copy_image GL_EXT_shader_non_constant_global_initializers GL_EXT_color_buffer_half_float GL_EXT_unpack_subimage GL_EXT_color_buffer_float GL_EXT_float_blend GL_EXT_YUV_target GL_OVR_multiview GL_OVR_multiview2 GL_OVR_multiview_multisampled_render_to_texture GL_KHR_robustness GL_KHR_robust_buffer_access_behavior GL_EXT_draw_elements_base_vertex GL_OES_draw_elements_base_vertex GL_EXT_protected_textures GL_EXT_buffer_storage GL_EXT_external_buffer GL_EXT_EGL_image_array GL_EXT_texture_filter_anisotropic GL_OES_texture_float_linear GL_ARM_texture_unnormalized_coordinates GL_EXT_shader_framebuffer_fetch GL_EXT_clip_control
+WebGL 1 Extensions: ANGLE_instanced_arrays EXT_blend_minmax EXT_color_buffer_half_float EXT_float_blend EXT_sRGB EXT_texture_filter_anisotropic MOZ_debug OES_element_index_uint OES_fbo_render_mipmap OES_standard_derivatives OES_texture_float OES_texture_float_linear OES_texture_half_float OES_texture_half_float_linear OES_vertex_array_object WEBGL_color_buffer_float WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_depth_texture WEBGL_lose_context
+WebGL 2 Driver WSI Info: EGL_VENDOR: Android EGL_VERSION: 1.4 Android META-EGL EGL_EXTENSIONS: EGL_ANDROID_front_buffer_auto_refresh EGL_ANDROID_get_native_client_buffer EGL_ANDROID_presentation_time EGL_EXT_surface_CTA861_3_metadata EGL_EXT_surface_SMPTE2086_metadata EGL_KHR_get_all_proc_addresses EGL_KHR_swap_buffers_with_damage EGL_ANDROID_get_frame_timestamps EGL_EXT_gl_colorspace_scrgb EGL_EXT_gl_colorspace_scrgb_linear EGL_EXT_gl_colorspace_display_p3_linear EGL_EXT_gl_colorspace_display_p3 EGL_EXT_gl_colorspace_display_p3_passthrough EGL_EXT_gl_colorspace_bt2020_hlg EGL_EXT_gl_colorspace_bt2020_linear EGL_EXT_gl_colorspace_bt2020_pq EGL_ANDROID_image_native_buffer EGL_ANDROID_native_fence_sync EGL_ANDROID_recordable EGL_EXT_create_context_robustness EGL_EXT_image_gl_colorspace EGL_EXT_pixel_format_float EGL_EXT_protected_content EGL_EXT_yuv_surface EGL_IMG_context_priority EGL_KHR_config_attribs EGL_KHR_create_context EGL_KHR_fence_sync EGL_KHR_gl_colorspace EGL_KHR_gl_renderbuffer_image EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_image EGL_KHR_image_base EGL_KHR_mutable_render_buffer EGL_KHR_no_config_context EGL_KHR_partial_update EGL_KHR_surfaceless_context EGL_KHR_wait_sync EGL_NV_context_priority_realtime
+WebGL 2 Driver Renderer: ARM -- Mali-G57 MC2
+WebGL 2 Driver Version: OpenGL ES 3.2 v1.r38p1
+WebGL 2 Driver Extensions: GL_EXT_debug_marker GL_ARM_rgba8 GL_ARM_mali_shader_binary GL_OES_depth24 GL_OES_depth_texture GL_OES_depth_texture_cube_map GL_OES_packed_depth_stencil GL_OES_rgb8_rgba8 GL_EXT_read_format_bgra GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_standard_derivatives GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_image_external_essl3 GL_OES_EGL_sync GL_OES_texture_npot GL_OES_vertex_half_float GL_OES_required_internalformat GL_OES_vertex_array_object GL_OES_mapbuffer GL_EXT_texture_format_BGRA8888 GL_EXT_texture_rg GL_EXT_texture_type_2_10_10_10_REV GL_OES_fbo_render_mipmap GL_OES_element_index_uint GL_EXT_shadow_samplers GL_OES_texture_compression_astc GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_hdr GL_KHR_texture_compression_astc_sliced_3d GL_EXT_texture_compression_astc_decode_mode GL_EXT_texture_compression_astc_decode_mode_rgb9e5 GL_KHR_debug GL_EXT_occlusion_query_boolean GL_EXT_disjoint_timer_query GL_EXT_blend_minmax GL_EXT_discard_framebuffer GL_OES_get_program_binary GL_OES_texture_3D GL_EXT_texture_storage GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_OES_surfaceless_context GL_OES_texture_stencil8 GL_EXT_shader_pixel_local_storage GL_ARM_shader_framebuffer_fetch GL_ARM_shader_framebuffer_fetch_depth_stencil GL_ARM_mali_program_binary GL_EXT_sRGB GL_EXT_sRGB_write_control GL_EXT_texture_sRGB_decode GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_KHR_blend_equation_advanced GL_KHR_blend_equation_advanced_coherent GL_OES_texture_storage_multisample_2d_array GL_OES_shader_image_atomic GL_EXT_robustness GL_EXT_draw_buffers_indexed GL_OES_draw_buffers_indexed GL_EXT_texture_border_clamp GL_OES_texture_border_clamp GL_EXT_texture_cube_map_array GL_OES_texture_cube_map_array GL_OES_sample_variables GL_OES_sample_shading GL_OES_shader_multisample_interpolation GL_EXT_shader_io_blocks GL_OES_shader_io_blocks GL_EXT_tessellation_shader GL_OES_tessellation_shader GL_EXT_primitive_bounding_box GL_OES_primitive_bounding_box GL_EXT_geometry_shader GL_OES_geometry_shader GL_ANDROID_extension_pack_es31a GL_EXT_gpu_shader5 GL_OES_gpu_shader5 GL_EXT_texture_buffer GL_OES_texture_buffer GL_EXT_copy_image GL_OES_copy_image GL_EXT_shader_non_constant_global_initializers GL_EXT_color_buffer_half_float GL_EXT_unpack_subimage GL_EXT_color_buffer_float GL_EXT_float_blend GL_EXT_YUV_target GL_OVR_multiview GL_OVR_multiview2 GL_OVR_multiview_multisampled_render_to_texture GL_KHR_robustness GL_KHR_robust_buffer_access_behavior GL_EXT_draw_elements_base_vertex GL_OES_draw_elements_base_vertex GL_EXT_protected_textures GL_EXT_buffer_storage GL_EXT_external_buffer GL_EXT_EGL_image_array GL_EXT_texture_filter_anisotropic GL_OES_texture_float_linear GL_ARM_texture_unnormalized_coordinates GL_EXT_shader_framebuffer_fetch GL_EXT_clip_control
+WebGL 2 Extensions: EXT_color_buffer_float EXT_float_blend EXT_texture_filter_anisotropic MOZ_debug OES_draw_buffers_indexed OES_texture_float_linear OVR_multiview2 WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context
+Target Frame Rate: 60
+WebGPU Default Adapter: { "navigator.gpu": null }
+WebGPU Fallback Adapter: { "navigator.gpu": null }
+GPU #1
+Active: Yes
+Description: Model: SM-A156E, Product: a15xnndxx, Manufacturer: samsung, Hardware: mt6835, OpenGL: ARM -- Mali-G57 MC2 -- OpenGL ES 3.2 v1.r38p1
+Vendor ID: ARM
+Device ID: Mali-G57 MC2
+Driver Version: OpenGL ES 3.2 v1.r38p1
+RAM: 0
+Diagnostics
+AzureCanvasBackend: skia
+AzureCanvasBackend (UI Process): skia
+AzureContentBackend: skia
+AzureContentBackend (UI Process): skia
+AzureFallbackCanvasBackend (UI Process): skia
+CMSOutputProfile: Empty profile data
+Display0: 1080x2340@60Hz scales:2.812500|1.000000 SDR
+DisplayCount: 1
+GPUProcessPid: 5447
+Font Visibility Debug Info: Android 12+ - release_version_str=16, release_version=16, manufacturer=samsung, brand=samsung, model=sm-a156e, product=a15xnndxx, chromebook=no
+Decision Log
+HW_COMPOSITING:
+default: available,
+OPENGL_COMPOSITING:
+default: available,
+GPU_PROCESS:
+default: available,
+WEBRENDER:
+default: available,
+WEBRENDER_COMPOSITOR:
+default: disabled, Disabled by default, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+WEBRENDER_PARTIAL:
+default: available,
+WEBRENDER_SHADER_CACHE:
+default: available,
+WEBRENDER_OPTIMIZED_SHADERS:
+default: available,
+WEBRENDER_ANGLE:
+default: available,
+env: unavailable, OS not supported, Blocklisted; failure code FEATURE_FAILURE_OS_NOT_SUPPORTED
+WEBRENDER_DCOMP_PRESENT:
+default: available,
+user: disabled, User disabled via pref, Blocklisted; failure code FEATURE_FAILURE_DCOMP_PREF_DISABLED
+runtime: unavailable, Requires ANGLE, Blocklisted; failure code FEATURE_FAILURE_DCOMP_NOT_ANGLE
+WEBRENDER_SCISSORED_CACHE_CLEARS:
+default: available,
+WEBGPU:
+default: available,
+env: blocklisted, #BLOCKLIST_FEATURE_FAILURE_WEBGPU_ANDROID, Blocklisted; failure code FEATURE_FAILURE_WEBGPU_ANDROID
+HARDWARE_VIDEO_DECODING:
+default: available,
+HARDWARE_VIDEO_DECODING_VULKAN:
+default: available,
+user: disabled, User disabled via media.hardware-video-decoding-vulkan.enabled, Blocklisted; failure code FEATURE_HARDWARE_VIDEO_DECODING_VULKAN_PREF_DISABLED
+HARDWARE_VIDEO_ENCODING:
+default: available,
+VP8_HW_DECODE:
+default: unavailable, Hardware codec not available, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+VP9_HW_DECODE:
+default: available,
+BACKDROP_FILTER:
+default: available,
+CANVAS_RENDERER_THREAD:
+default: available,
+ACCELERATED_CANVAS2D:
+default: available,
+H264_HW_DECODE:
+default: available,
+AV1_HW_DECODE:
+default: unavailable, Hardware codec not available, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+HEVC_HW_DECODE:
+default: available,
+VP8_HW_ENCODE:
+default: unavailable, Hardware codec not available, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+VP9_HW_ENCODE:
+default: unavailable, Hardware codec not available, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+H264_HW_ENCODE:
+default: available,
+AV1_HW_ENCODE:
+default: unavailable, Hardware codec not available, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+HEVC_HW_ENCODE:
+default: available,
+GL_NORM16_TEXTURES:
+default: available,
+env: blocklisted, Blocklisted by gfxInfo, Blocklisted; failure code FEATURE_FAILURE_MISSING_EXTENSION
+WEBGPU_EXTERNAL_TEXTURE:
+default: disabled, Disabled by default, Blocklisted; failure code FEATURE_FAILURE_DISABLED
+runtime: blocked, WebGPU external textures are not supported on this Operating Sy, Blocklisted; failure code WEBGPU_EXTERNAL_TEXTURE_UNSUPPORTED_OS
+WEBGL:
+default: available,
+VIDEO_HDR:
+default: available,
+
+Media
+-----
+
+Audio Backend: aaudio
+Max Channels: 2
+Preferred Sample Rate: 48000
+Roundtrip latency (standard deviation): ...
+Codec Support Information:
+Codec Name: Software Decoding, Hardware Decoding, Software Encoding, Hardware Encoding
+H264: Supported, Supported, Unsupported, Unsupported
+VP9: Supported, Supported, Unsupported, Unsupported
+VP8: Supported, Unsupported, Unsupported, Unsupported
+AV1: Supported, Unsupported, Unsupported, Unsupported
+HEVC: Supported, Supported, Unsupported, Unsupported
+AAC: Supported, Unsupported, Unsupported, Unsupported
+MP3: Supported, Unsupported, Unsupported, Unsupported
+Opus: Supported, Unsupported, Unsupported, Unsupported
+Vorbis: Supported, Unsupported, Unsupported, Unsupported
+FLAC: Supported, Unsupported, Unsupported, Unsupported
+Wave: Unsupported, Unsupported, Unsupported, Unsupported
+Output Devices
+Name: Group, Vendor, State, Preferred, Format, Channels, Rate, Latency
+Default audio output device: Enabled, All, default: S16LE, support: S16LE S16BE F32LE F32BE, 2, default: 44100, support: 44100 - 44100, 128 - 441
+Input Devices
+Name: Group, Vendor, State, Preferred, Format, Channels, Rate, Latency
+Default audio input device: Enabled, All, default: S16LE, support: S16LE S16BE F32LE F32BE, 1, default: 44100, support: 44100 - 44100, 128 - 441
+Content Decryption Modules Information
+Key System Name: Video Robustness, Audio Robustness, Capabilities, Clear Lead
+org.w3.clearkey: {"persistent":"Optional","distinctive":"NotAllowed","sessionType":"[Temporary]","codec":{"decodingAndDecrypting":[],"decryptingOnly":["h264(all)","aac(all)","flac(all)","opus(all)","vp9(all)","av1(all)","vorbis(all)","vp8(all)"]}}, No
+com.widevine.alpha: SW_SECURE_CRYPTO,SW_SECURE_DECODE, SW_SECURE_CRYPTO, {"persistent":"Optional","distinctive":"NotAllowed","sessionType":"[Temporary,PersistentLicense]","codec":{"decodingAndDecrypting":["h264(all)","vp9(all)","av1(all)"],"decryptingOnly":["aac(all)","flac(all)","opus(all)","vp8(all)","vp9(all)","av1(all)","vorbis(all)"]}}, Yes
+
+Environment Variables
+---------------------
+
+Remote Settings
+---------------
+
+Status: OK
+
+Status: 2026-08-09T02:31:42.000Z
+
+Status: 1786238117163
+
+Status: Status Date Infos successSun Aug 09 2026 07:15:17 GMT+0600 (Bangladesh Standard Time){}
+Date: success
+Infos: Sun Aug 09 2026 07:15:17 GMT+0600 (Bangladesh Standard Time)
+{}
+
+Status: success
+Date: Sun Aug 09 2026 07:15:17 GMT+0600 (Bangladesh Standard Time)
+Infos: {}
+
+Important Modified Preferences
+------------------------------
+
+browser.search.region: BD
+extensions.lastAppVersion: 153.0
+idle.lastDailyNotification: 1786242879
+media.gmp.storage.version.observed: 1
+network.cookie.CHIPS.lastMigrateDatabase: 2
+network.cookie.validation.lastEpoch: 1
+privacy.purge_trackers.date_in_cookie_database: 0
+privacy.trackingprotection.allow_list.hasMigratedCategoryPrefs: true
+storage.vacuum.last.content-prefs.sqlite: 1786242879
+storage.vacuum.last.index: 0
+
+Important Locked Preferences
+----------------------------
+
+fission.autostart.session: true
+media.utility-process.enabled: true
+
+Accessibility
+-------------
+
+Activated: false
+Prevent Accessibility: 0
+
+Library Versions
+----------------
+
+NSPR
+Expected minimum version: 4.39
+Version in use: 4.39
+
+NSS
+Expected minimum version: 3.125
+Version in use: 3.125
+
+NSSSMIME
+Expected minimum version: 3.125
+Version in use: 3.125
+
+NSSSSL
+Expected minimum version: 3.125
+Version in use: 3.125
+
+NSSUTIL
+Expected minimum version: 3.125
+Version in use: 3.125
+
+Startup Cache
+-------------
+
+Ignore Disk Cache: false
+Found Disk Cache on Init: true
+Wrote to Disk Cache: false
+
+Internationalisation & Localisation
+-----------------------------------
+
+Application Settings
+Requested Locales: ["en-GB"]
+Available Locales: ["ach","an","ar","ast","az","be","bg","bn","br","bs","ca","cak","cs","cy","da","de","dsb","el","en-CA","en-GB","eo","es-AR","es-CL","es-ES","es-MX","et","eu","fa","ff","fi","fr","fy-NL","ga-IE","gd","gl","gn","gu-IN","he","hi-IN","hr","hsb","hu","hy-AM","ia","id","is","it","ja","ka","kab","kk","km","kn","ko","lij","lo","lt","ltg","lv","meh","mix","ml","mr","ms","my","nb-NO","ne-NP","nl","nn-NO","oc","pa-IN","pl","pt-BR","pt-PT","rm","ro","ru","sk","sl","son","sq","sr","sv-SE","ta","te","th","tl","tr","trs","uk","ur","uz","vi","wo","xh","zam","zh-CN","zh-TW","en-US"]
+App Locales: ["en-GB","en-US","en-CA"]
+Regional Preferences: ["en-GB"]
+Default Locale: "en-US"
+Operating System
+System Locales: ["en-GB"]
+Regional Preferences: ["en-GB"]
+
+Remote Debugging (Chromium Protocol)
+------------------------------------
+
+Accepting Connections: false
+URL:
