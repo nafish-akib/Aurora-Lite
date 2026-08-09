@@ -129,6 +129,7 @@ import com.aurora.ui.screens.HomeScreen
 import com.aurora.ui.screens.TabManagementScreen
 import com.aurora.ui.theme.AuroraColors
 import com.aurora.ui.theme.accentBackground
+import com.aurora.ui.theme.scaledSp
 import com.aurora.ui.theme.StaggerDelay
 import com.aurora.ui.theme.cardLift
 import com.aurora.ui.theme.focusScale
@@ -683,7 +684,7 @@ fun HomeScreenContent(
                     Column(Modifier.fillMaxWidth().border(1.dp, AuroraColors.white5).padding(bottom = 12.dp).graphicsLayer { alpha = s0 }) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { val ds = rememberBrandDotPulse(); Box(Modifier.size(6.dp).graphicsLayer(scaleX = ds, scaleY = ds).background(AuroraColors.auroraBlue, CircleShape)); Text("Aurora Operating Core", color = AuroraColors.white40, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) }
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                            Column { Text("$greeting, ${currentProfile.name}", color = AuroraColors.white, fontSize = 28.sp, fontWeight = FontWeight.Bold); Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.AutoAwesome, null, Modifier.size(14.dp), AuroraColors.auroraPurple); Text("Living Glass interface is fully optimized for 3-meter living room viewing.", color = AuroraColors.white45, fontSize = 11.sp) } }
+                            Column { Text("$greeting, ${currentProfile.name}", color = AuroraColors.white, fontSize = scaledSp(28), fontWeight = FontWeight.Bold); Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.AutoAwesome, null, Modifier.size(14.dp), AuroraColors.auroraPurple); Text("Living Glass interface is fully optimized for 3-meter living room viewing.", color = AuroraColors.white45, fontSize = scaledSp(11)) } }
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(AuroraColors.white5, RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.white10, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.Book, null, Modifier.size(14.dp), AuroraColors.auroraBlue); Text("LIVING GLASS V2.0", color = AuroraColors.white50, fontSize = 9.sp, fontFamily = FontFamily.Monospace) }
                         }
                     }
@@ -702,9 +703,9 @@ fun HomeScreenContent(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(AuroraColors.white5, RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.white10, RoundedCornerShape(12.dp)).padding(horizontal = 8.dp, vertical = 4.dp)) {
                                 Icon(Icons.Default.Mic, null, Modifier.size(14.dp), if (isFocused) AuroraColors.auroraBlue else AuroraColors.white50)
                                 val sr2 = rememberSparkleRotation(); Icon(Icons.Default.AutoAwesome, null, Modifier.size(14.dp).graphicsLayer { rotationZ = if (isFocused) sr2 else 0f }, AuroraColors.auroraPurple)
-                            }
-                        }
-                    }
+        }
+    }
+}
                     }
                     ContinueBrowsingSection(focusEngine = focusEngine!!, onNavigate = onNavigate)
                     StreamingHubSection(focusEngine = focusEngine!!, onNavigate = onNavigate)

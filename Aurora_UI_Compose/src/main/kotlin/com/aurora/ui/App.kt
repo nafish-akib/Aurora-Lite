@@ -45,9 +45,11 @@ import androidx.compose.ui.unit.dp
 import android.view.KeyEvent
 import com.aurora.browser.ui.components.BrowserCoordinator
 import com.aurora.browser.ui.components.Cursor
+import com.aurora.browser.ui.components.DeveloperHud
 import com.aurora.browser.ui.components.HomeCoordinator
 import com.aurora.browser.ui.components.OverlayCoordinator
 import com.aurora.browser.ui.components.FindInPagePanel
+import androidx.compose.runtime.CompositionLocalProvider
 import com.aurora.browser.ui.components.Process as AuroraProcess
 import com.aurora.browser.ui.components.LogEvent as AuroraLogEvent
 import com.aurora.browser.ui.components.SettingsCoordinator
@@ -60,6 +62,7 @@ import com.aurora.data.model.HistoryEntry
 import com.aurora.data.search.SearchEngineRegistry
 import com.aurora.engine.FilePickerRequest
 import com.aurora.ui.theme.accentBackground
+import com.aurora.ui.theme.LocalLargerUI
 import com.aurora.home.UrlDetector
 import com.aurora.ui.components.NoiseGrain
 import com.aurora.ui.data.MockData
@@ -1028,6 +1031,7 @@ val featuredCount = MockData.featuredStreamingSites.size
             if (!browser.isKeyboardOpen) rootFocusRequester.requestFocus()
         }
 
+        CompositionLocalProvider(LocalLargerUI provides settings.largerUI) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -1238,6 +1242,7 @@ val featuredCount = MockData.featuredStreamingSites.size
                     clicked = browser.remoteClicked
                 )
             }
+        }
         }
     }
 }

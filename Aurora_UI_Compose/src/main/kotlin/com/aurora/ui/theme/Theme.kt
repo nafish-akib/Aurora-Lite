@@ -4,9 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.aurora.design.theme.LocalAccentColors
 
 val LocalLargerUI = staticCompositionLocalOf { false }
+
+@Composable
+fun scaledSp(base: Int): TextUnit {
+    val largerUI = LocalLargerUI.current
+    return ((base * if (largerUI) 1.4f else 1.0f).toInt()).sp
+}
 
 object AuroraColors {
     val auroraBlue: Color get() = com.aurora.browser.ui.theme.AuroraColors.Blue
