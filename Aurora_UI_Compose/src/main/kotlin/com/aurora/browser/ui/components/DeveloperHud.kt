@@ -77,7 +77,7 @@ fun DeveloperHud(
             HudRow("CPU", "$cpuPercent%")
             HudRow("GPU", "$gpuPercent%")
             HudRow("Network", if (networkKbps >= 1000) "${networkKbps / 1000} Mbps" else "$networkKbps Kbps")
-            HudRow("Gecko", "$tabsCount Tabs")
+            HudRow("WebView", "$tabsCount Tabs")
 
             HorizontalDivider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(vertical = 2.dp))
 
