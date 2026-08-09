@@ -43,6 +43,7 @@ fun LoadErrorScreen(
     onRetry: () -> Unit,
     onBack: () -> Unit,
     onHome: () -> Unit,
+    onOpenExternally: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val (icon, title, message) = when (errorState) {
@@ -163,6 +164,16 @@ fun LoadErrorScreen(
                         Icon(Icons.Default.Home, null, Modifier.size(14.dp), AuroraColors.white)
                         Text("Home", color = AuroraColors.white, fontSize = 11.sp)
                     }
+                }
+                Box(
+                    Modifier
+                        .background(AuroraColors.neutral800, RoundedCornerShape(12.dp))
+                        .border(1.dp, AuroraColors.white5, RoundedCornerShape(12.dp))
+                        .focusable()
+                        .padding(horizontal = 24.dp, vertical = 10.dp)
+                        .clickable { onOpenExternally() }
+                ) {
+                    Text("External", color = AuroraColors.white50, fontSize = 11.sp)
                 }
             }
         }

@@ -10,5 +10,6 @@ interface BrowserSettings {
     var allowThirdPartyCookies: Boolean
     var textZoom: Int
     var adBlockingEnabled: Boolean
+    var sslBypassEnabled: Boolean
 }
 

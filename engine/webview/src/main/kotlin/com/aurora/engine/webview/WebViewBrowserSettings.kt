@@ -66,6 +66,8 @@ class WebViewBrowserSettings(
 
     override var adBlockingEnabled: Boolean = false
 
+    override var sslBypassEnabled: Boolean = false
+
     val adBlockHosts: Set<String> = setOf(
         "doubleclick.net", "googlesyndication.com", "googleadservices.com",
         "google-analytics.com", "googletagmanager.com",

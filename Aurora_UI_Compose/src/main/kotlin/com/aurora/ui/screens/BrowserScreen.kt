@@ -66,6 +66,7 @@ fun BrowserScreen(
     onNavigate: (String) -> Unit,
     onReopenClosed: (String) -> Unit,
     onRetry: () -> Unit,
+    onOpenExternally: () -> Unit = {},
     onUrlEdit: (String) -> Unit = {},
     editQuery: String = "",
     isEditing: Boolean = false,
@@ -133,6 +134,7 @@ fun BrowserScreen(
                 errorState = uiState.errorState,
                 failedUrl = uiState.currentUrl,
                 onRetry = onRetry,
+                onOpenExternally = onOpenExternally,
                 onBack = onBackPress,
                 onHome = onHomePress,
                 modifier = Modifier.fillMaxSize()

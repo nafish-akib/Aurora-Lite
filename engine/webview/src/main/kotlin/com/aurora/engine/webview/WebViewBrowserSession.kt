@@ -323,7 +323,7 @@ class WebViewBrowserSession(
 
         override fun onReceivedSslError(view: WebView, handler: android.webkit.SslErrorHandler, error: android.net.http.SslError) {
             val url = error.url ?: currentUrl
-            val bypass = sslBypassHandler?.invoke(url, error.primaryError) ?: false
+            val bypass = sslBypassHandler?.invoke(url, error.primaryError) ?: settings.sslBypassEnabled
             if (bypass) {
                 handler.proceed()
                 return
