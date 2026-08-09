@@ -63,6 +63,11 @@ class WebViewBrowserSession(
     private var rendererCrashCount = 0
     private var customView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
+    private val blobBridge: WebViewBlobBridge by lazy {
+        WebViewBlobBridge(appContext) { url, fileName, mimeType, savedFilePath ->
+            callbacks?.onDownloadRequest(url, fileName, mimeType, 0, savedFilePath)
+        }
+    }
 
     var sslBypassHandler: ((url: String, primaryError: Int) -> Boolean)? = null
 
@@ -245,6 +250,7 @@ class WebViewBrowserSession(
         }
 
         loginVault?.install(view)
+        view.addJavascriptInterface(blobBridge, "AuroraBlob")
         pendingUrl?.let { view.loadUrl(it); pendingUrl = null }
     }
 
@@ -306,6 +312,7 @@ class WebViewBrowserSession(
             callbacks?.onProgressChange(100)
             callbacks?.onPageFinish(currentUrl, !pageLoadFailed)
             loginVault?.let { it.lastCapturedUrl = currentUrl; it.injectCaptureScript(view) }
+            view.evaluateJavascript(WebViewBlobBridge.INJECT_SCRIPT, null)
         }
 
         override fun onReceivedError(view: WebView, request: WebResourceRequest?, error: WebResourceError?) {
