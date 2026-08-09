@@ -418,6 +418,12 @@ fun AuroraApp(initialUrl: String? = null) {
             if (!granted) triggerToast("Notification permission needed for download notifications")
         }
 
+        LaunchedEffect(Unit) {
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         var pendingFilePicker by remember { mutableStateOf<FilePickerRequest?>(null) }
         val filePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
             val picker = pendingFilePicker

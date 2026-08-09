@@ -68,9 +68,12 @@ class WebViewBrowserSettings(
 
     val adBlockHosts: Set<String> = setOf(
         "doubleclick.net", "googlesyndication.com", "googleadservices.com",
-        "scorecardresearch.com", "quantserve.com",
-        "adsrvr.org", "pubmatic.com", "openx.net",
-        "amazon-adsystem.com", "moatads.com",
-        "outbrain.com", "taboola.com"
+        "google-analytics.com", "googletagmanager.com",
+        "scorecardresearch.com", "quantserve.com", "chartbeat.com",
+        "adsrvr.org", "pubmatic.com", "openx.net", "adnxs.com",
+        "amazon-adsystem.com", "moatads.com", "criteo.com", "criteo.net",
+        "outbrain.com", "taboola.com", "zedo.com", "casalemedia.com",
+        "rubiconproject.com", "adsafeprotected.com", "serving-sys.com",
+        "connect.facebook.net", "ads.linkedin.com"
     )
 }
