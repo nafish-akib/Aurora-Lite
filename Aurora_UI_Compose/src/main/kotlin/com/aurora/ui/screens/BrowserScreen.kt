@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.aurora.browser.ui.theme.AuroraColors
+import com.aurora.ui.theme.accentPrimary
+import com.aurora.ui.theme.accentBackground
 import com.aurora.browser.ui.theme.AuroraShapes
 import com.aurora.browser.ui.theme.AuroraTypography
 import com.aurora.engine.BrowserSession
@@ -288,7 +290,7 @@ fun BrowserToolbar(
             .fillMaxWidth()
             .padding(16.dp)
             .background(Color(0xFF0E0F14).copy(alpha = 0.9f), AuroraShapes.RoundedLg)
-            .border(1.dp, Color.White.copy(alpha = 0.1f), AuroraShapes.RoundedLg)
+            .border(1.dp, accentPrimary().copy(alpha = 0.3f), AuroraShapes.RoundedLg)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -429,7 +431,7 @@ fun BrowserToolbar(
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .fillMaxWidth(fraction = (loadingProgress / 100f).coerceIn(0f, 1f))
-                                            .background(AuroraColors.Blue, CircleShape)
+                                            .background(accentPrimary(), CircleShape)
                                     )
                                 }
                             }

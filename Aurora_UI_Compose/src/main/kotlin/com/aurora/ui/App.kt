@@ -673,7 +673,8 @@ val featuredCount = MockData.featuredStreamingSites.size
                     currentScreen = Screen.TabManagement
                     triggerToast("Tab Manager")
                 } else if (browser.remoteY < browser.toolbarHeightPx) {
-                    browser.toolbarVisible = !browser.toolbarVisible
+                    if (!browser.toolbarVisible) browser.toolbarVisible = true
+                    else browser.tabWorkspaceVisible = false
                 } else {
                     browser.remoteClicked = true
                     uiScope.launch { delay(200); browser.remoteClicked = false }

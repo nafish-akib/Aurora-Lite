@@ -62,8 +62,17 @@ class WebViewInputBridge(
         val view = viewProvider() ?: return
         if (deltaX == 0f && deltaY == 0f) return
         val now = SystemClock.uptimeMillis()
-        val event = MotionEvent.obtain(now, now, MotionEvent.ACTION_SCROLL, deltaX, deltaY, 0)
-        event.source = InputDevice.SOURCE_MOUSE
+        val pointerCoords = MotionEvent.PointerCoords().apply {
+            setAxisValue(MotionEvent.AXIS_HSCROLL, deltaX)
+            setAxisValue(MotionEvent.AXIS_VSCROLL, deltaY)
+        }
+        val pointerProperties = MotionEvent.PointerProperties()
+        val event = MotionEvent.obtain(
+            now, now, MotionEvent.ACTION_SCROLL, 1,
+            arrayOf(pointerProperties), arrayOf(pointerCoords),
+            0, 0, 1f, 1f, 0, 0,
+            InputDevice.SOURCE_MOUSE, 0
+        )
         try {
             view.dispatchGenericMotionEvent(event)
         } finally {

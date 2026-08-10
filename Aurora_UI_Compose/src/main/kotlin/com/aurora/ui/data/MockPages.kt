@@ -254,6 +254,7 @@ object MockData {
         PopularSite("Funimation", "https://funimation.com", "PlayArrow", 0xFF6C1FAB),
         PopularSite("HiDive", "https://hidive.com", "PlayArrow", 0xFF00A8E8),
         PopularSite("RetroCrush", "https://retrocrush.tv", "PlayArrow", 0xFFFF3D3D),
+        PopularSite("AnimePahe", "https://animepahe.pw", "PlayArrow", 0xFFE91E63),
         PopularSite("Claro Video", "https://clarovideo.com", "PlayArrow", 0xFF0FAD2D),
         PopularSite("Blim", "https://blim.com", "PlayArrow", 0xFF00AEEF),
         PopularSite("GloboPlay", "https://globoplay.globo.com", "PlayArrow", 0xFF0B0B0B),
