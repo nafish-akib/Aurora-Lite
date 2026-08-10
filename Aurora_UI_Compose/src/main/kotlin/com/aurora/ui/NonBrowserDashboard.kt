@@ -700,6 +700,7 @@ fun HomeScreenContent(
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(AuroraColors.white5, RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.white10, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.AutoAwesome, null, Modifier.size(14.dp), AuroraColors.auroraBlue); Text("AURORA TV", color = AuroraColors.white50, fontSize = 9.sp, fontFamily = FontFamily.Monospace) }
                         }
                     }
+                    com.aurora.ui.weather.WeatherCard()
                     val s1 = rememberStaggerAlpha(StaggerDelay.Stagger1); val cb = rememberCursorBlink()
                     FocusBinding(id = "search_bar", focusEngine = focusEngine!!, group = "search", order = 0, onClick = { onOpenKeyboard() }) { isFocused ->
                     Box(Modifier.widthIn(max = 620.dp).fillMaxWidth().align(Alignment.CenterHorizontally).graphicsLayer { alpha = s1 }.focusScale(isFocused).lightSweep(isFocused).background(if (isFocused) AuroraColors.neutral950 else AuroraColors.neutral950.copy(alpha = 0.65f), RoundedCornerShape(24.dp)).padding(horizontal = 20.dp, vertical = 18.dp)) {
