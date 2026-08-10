@@ -1,6 +1,7 @@
 package com.aurora.ui.weather
 
 import android.content.Context
+import android.location.Geocoder
 import android.location.LocationManager
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -8,6 +9,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Locale
 
 object WeatherService {
     private const val TAG = "AuroraWeather"
@@ -23,16 +25,18 @@ object WeatherService {
             try {
                 val loc = getLocation(context)
                 val json = fetchOpenMeteo(loc.first, loc.second)
-                val temp = json.getJSONObject("current").getDouble("temperature_2m")
-                val humidity = json.getJSONObject("current").optInt("relative_humidity_2m", 0)
-                val wind = json.getJSONObject("current").optDouble("wind_speed_10m", 0.0)
-                val code = json.getJSONObject("current").optInt("weather_code", 0)
+                val current = json.getJSONObject("current")
+                val temp = current.getDouble("temperature_2m")
+                val humidity = current.optInt("relative_humidity_2m", 0)
+                val wind = current.optDouble("wind_speed_10m", 0.0)
+                val code = current.optInt("weather_code", 0)
+                val cityName = if (loc.third == "Current Location") reverseGeocode(context, loc.first, loc.second) else loc.third
                 val data = WeatherData(
                     temperature = temp,
                     humidity = humidity,
                     windSpeed = wind,
                     condition = WeatherCondition.fromWmoCode(code),
-                    location = loc.third
+                    location = cityName
                 )
                 cached = data
                 lastFetchMs = System.currentTimeMillis()
@@ -51,14 +55,23 @@ object WeatherService {
             for (p in providers) {
                 try {
                     val loc = lm?.getLastKnownLocation(p)
-                    if (loc != null) {
-                        return Triple(loc.latitude, loc.longitude, "Current Location")
-                    }
+                    if (loc != null) return Triple(loc.latitude, loc.longitude, "Current Location")
                 } catch (_: SecurityException) {}
             }
             Triple(40.7128, -74.0060, "New York")
         } catch (_: Exception) {
             Triple(40.7128, -74.0060, "New York")
+        }
+    }
+
+    private fun reverseGeocode(context: Context, lat: Double, lon: Double): String {
+        return try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(lat, lon, 1)
+            val addr = addresses?.firstOrNull()
+            addr?.locality ?: addr?.subAdminArea ?: addr?.adminArea ?: addr?.countryName ?: "Unknown"
+        } catch (_: Exception) {
+            "Unknown"
         }
     }
 
