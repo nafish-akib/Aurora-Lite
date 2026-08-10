@@ -78,6 +78,7 @@ fun BrowserScreen(
     onCursorMove: (Float, Float) -> Unit = { _, _ -> },
     scrollDelta: Pair<Float, Float>? = null,
     scrollTick: Long = 0L,
+    toolbarClickTick: Long = 0L,
     clickCoordsProvider: () -> Pair<Float, Float> = { Pair(0f, 0f) },
     onDpadPress: (String) -> Unit = {},
     onBridgeSet: (InputBridge) -> Unit = {},
@@ -85,6 +86,8 @@ fun BrowserScreen(
     onTabWorkspaceOpenChange: (Boolean) -> Unit = {},
     tabWorkspaceVisible: Boolean = false,
     onToolbarHeightChanged: (Float) -> Unit = {},
+    toolbarClickX: Float? = null,
+    toolbarSelectAtX: ((Float) -> Unit)? = null,
     chromeVisible: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -92,6 +95,7 @@ fun BrowserScreen(
 
     var inputBridge by remember { mutableStateOf<InputBridge?>(null) }
     var toolbarHeightPx by remember { mutableFloatStateOf(0f) }
+    var toolbarWidthPx by remember { mutableFloatStateOf(1920f) }
     var workspaceHeightPx by remember { mutableFloatStateOf(0f) }
 
     Box(
@@ -173,6 +177,7 @@ fun BrowserScreen(
                 Box(Modifier.onGloballyPositioned { coordinates ->
                     val h = coordinates.size.height.toFloat()
                     toolbarHeightPx = h
+                    toolbarWidthPx = coordinates.size.width.toFloat()
                     onToolbarHeightChanged(h)
                 }) {
                     BrowserToolbar(
@@ -221,6 +226,35 @@ fun BrowserScreen(
             val bridge = inputBridge ?: return@LaunchedEffect
             val (dx, dy) = scrollDelta ?: return@LaunchedEffect
             bridge.injectScroll(dx, dy)
+        }
+
+        LaunchedEffect(toolbarClickTick) {
+            if (toolbarClickTick == 0L) return@LaunchedEffect
+            val (cx, _) = clickCoordsProvider()
+            val w = toolbarWidthPx.coerceAtLeast(1f)
+            val frac = (cx / w).coerceIn(0f, 1f)
+            val btn = when {
+                frac < 0.10f -> 0 // Back
+                frac < 0.20f -> 1 // Forward
+                frac < 0.30f -> 2 // Reload/Stop
+                frac < 0.40f -> 3 // Home
+                frac < 0.50f -> 4 // Library
+                frac < 0.85f -> 5 // URL bar
+                frac < 0.90f -> 6 // Privacy
+                frac < 0.95f -> 7 // Bookmark
+                else -> 8 // Desktop
+            }
+            when (btn) {
+                0 -> if (uiState.canGoBack) onBackPress()
+                1 -> if (uiState.canGoForward) onForwardPress()
+                2 -> if (uiState.isLoading) onStop() else onReload()
+                3 -> onHomePress()
+                4 -> onOpenLibrary()
+                5 -> onUrlEdit(uiState.currentUrl.ifBlank { "https://" })
+                6 -> onNewTab(true)
+                7 -> onToggleBookmark()
+                8 -> onToggleDesktop()
+            }
         }
 
         if (chromeVisible) {

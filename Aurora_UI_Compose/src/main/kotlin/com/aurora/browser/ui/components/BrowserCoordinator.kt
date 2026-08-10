@@ -20,6 +20,7 @@ class BrowserCoordinator {
     var scrollDelta by mutableStateOf(Pair(0f, 0f))
     var scrollTick by mutableLongStateOf(0L)
     var toolbarHeightPx by mutableFloatStateOf(200f)
+    var toolbarClickTick by mutableLongStateOf(0L)
     var inputBridge: InputBridge? = null
     fun scrollBy(dx: Float, dy: Float) {
         Log.d("AuroraBrowser", "scrollBy called bridge=${inputBridge != null} dx=$dx dy=$dy")

@@ -674,7 +674,7 @@ val featuredCount = MockData.featuredStreamingSites.size
                     triggerToast("Tab Manager")
                 } else if (browser.remoteY < browser.toolbarHeightPx) {
                     if (!browser.toolbarVisible) browser.toolbarVisible = true
-                    else browser.tabWorkspaceVisible = false
+                    else browser.toolbarClickTick++
                 } else {
                     browser.remoteClicked = true
                     uiScope.launch { delay(200); browser.remoteClicked = false }
@@ -1074,7 +1074,7 @@ val featuredCount = MockData.featuredStreamingSites.size
                         browser.remoteY = y
                         browser.tabWorkspaceVisible = y > 900f
                     },
-                    scrollDelta = browser.scrollDelta, scrollTick = browser.scrollTick,
+                    scrollDelta = browser.scrollDelta, scrollTick = browser.scrollTick, toolbarClickTick = browser.toolbarClickTick,
                     clickCoordsProvider = { Pair(browser.remoteX, browser.remoteY) },
                     onDpadPress = { d -> handleDpadPress(d); Unit },
                     isTabWorkspaceOpen = browser.isTabWorkspaceOpen,
