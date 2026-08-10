@@ -393,6 +393,7 @@ fun NonBrowserDashboard(
                                 onOpenSettings = { onSetCurrentScreen(Screen.Settings) },
                                 onOpenPasswords = { onSetCurrentScreen(Screen.PasswordManager) },
                                 onOpenDiagnostics = { onSetIsDiagnosticsOpen(true); triggerToast("Diagnostics") },
+                                onTabManagement = { onSetCurrentScreen(Screen.TabManagement); triggerToast("Tab Manager") },
                                 onAIAssistant = { browser.isKeyboardOpen = true; home.isOmniboxFocused = true; home.searchQuery = "Ask Aurora..." },
                                 uiState = HomeUiState(
                                     favorites = favoriteSites,

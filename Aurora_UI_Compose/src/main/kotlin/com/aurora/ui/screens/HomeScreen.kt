@@ -164,6 +164,7 @@ fun HomeScreen(
     onOpenDiagnostics: () -> Unit = {},
     onOpenPasswords: () -> Unit = {},
     onAIAssistant: () -> Unit = {},
+    onTabManagement: () -> Unit = {},
     uiState: HomeUiState = HomeUiState(),
     modifier: Modifier = Modifier
 ) {
@@ -283,8 +284,8 @@ fun HomeScreen(
                     when (index) {
                         0 -> onOpenLibrary()
                         1 -> onOpenSettings()
-                        2 -> onOpenPasswords()
-                        3 -> onAIAssistant()
+                        2 -> onAIAssistant()
+                        3 -> onTabManagement()
                         4 -> onOpenDiagnostics()
                     }
                 },

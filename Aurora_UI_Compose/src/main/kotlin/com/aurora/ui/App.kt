@@ -127,11 +127,13 @@ fun AuroraApp(initialUrl: String? = null) {
     val persistedAccent = remember { mutableStateOf("#4DA3FF") }
     val persistedTheme = remember { mutableStateOf("Aurora Dark") }
     var loadedProfileName by remember { mutableStateOf("") }
+    var profileLoaded by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         val prefs = com.aurora.data.preferences.SessionPreferences(context)
         try { prefs.accentColor.firstOrNull()?.let { persistedAccent.value = it; settings.activeAccent = it } } catch (_: Exception) {}
         try { prefs.themeName.firstOrNull()?.let { persistedTheme.value = it; settings.activeTheme = it } } catch (_: Exception) {}
         try { prefs.profileName.firstOrNull()?.let { name -> if (name.isNotBlank()) loadedProfileName = name } } catch (_: Exception) {}
+        profileLoaded = true
     }
     LaunchedEffect(settings.activeAccent, settings.activeTheme) {
         persistedAccent.value = settings.activeAccent
@@ -152,10 +154,10 @@ fun AuroraApp(initialUrl: String? = null) {
         var showProfileSetup by remember { mutableStateOf(false) }
         var currentProfile by remember { mutableStateOf(profiles[0]) }
 
-        LaunchedEffect(loadedProfileName) {
-            if (loadedProfileName.isBlank()) {
+        LaunchedEffect(profileLoaded) {
+            if (profileLoaded && loadedProfileName.isBlank()) {
                 showProfileSetup = true
-            } else {
+            } else if (loadedProfileName.isNotBlank()) {
                 currentProfile = currentProfile.copy(name = loadedProfileName)
             }
         }
