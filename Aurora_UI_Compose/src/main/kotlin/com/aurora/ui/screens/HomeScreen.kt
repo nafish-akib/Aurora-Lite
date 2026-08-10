@@ -151,7 +151,7 @@ fun FocusScrollZone(
 @Composable
 fun HomeScreen(
     searchQuery: String = "",
-    currentProfile: Profile = Profile("prof-1", "Akib Al Nafij", "", false, true),
+    currentProfile: Profile = Profile("prof-1", "", "", false, true),
     downloads: List<DownloadUiModel> = emptyList(),
     developerMode: Boolean = false,
     focusedZone: String = "search",
@@ -181,6 +181,8 @@ fun HomeScreen(
                 onBrandClick = {}
             )
         }
+
+        com.aurora.ui.weather.WeatherCard()
 
         StaggeredSection(StaggerStep.ONE) {
             FocusScrollZone(zone = "search", focusedZone = focusedZone) {
@@ -316,6 +318,7 @@ fun HomeGreetingSection(
     greeting: String = "",
     onBrandClick: () -> Unit
 ) {
+    val timeCtx = com.aurora.ui.getTimeContext()
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -337,7 +340,7 @@ fun HomeGreetingSection(
                         }
                 )
                 Text(
-                    text = "Aurora Operating Core",
+                    text = "Aurora",
                     style = AuroraTypography.MonoLabel,
                     color = Color.White.copy(alpha = 0.4f),
                     letterSpacing = 2.sp,
@@ -354,13 +357,13 @@ fun HomeGreetingSection(
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.History,
+                    imageVector = Icons.Default.AutoAwesome,
                     contentDescription = null,
                     tint = AuroraColors.Blue,
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
-                    text = "LIVING GLASS V2.0",
+                    text = "AURORA TV",
                     style = AuroraTypography.MonoLabel,
                     color = Color.White.copy(alpha = 0.5f),
                     fontSize = 10.sp
@@ -378,7 +381,7 @@ fun HomeGreetingSection(
         )
 
         Text(
-            text = profileName.split(" ").first(),
+            text = profileName.ifBlank { "User" }.split(" ").first(),
             style = AuroraTypography.TitleDisplay.copy(
                 brush = Brush.linearGradient(
                     colors = listOf(Color.White, Color.White, Color.White.copy(alpha = 0.6f))
@@ -393,13 +396,13 @@ fun HomeGreetingSection(
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Stars,
+                imageVector = Icons.Default.Star,
                 contentDescription = null,
                 tint = AuroraColors.Purple,
                 modifier = Modifier.size(14.dp)
             )
             Text(
-                text = "Living Glass interface is fully optimized for 3-meter living room viewing.",
+                text = timeCtx,
                 style = AuroraTypography.MonoLabel,
                 color = Color.White.copy(alpha = 0.45f),
                 fontSize = 11.sp
