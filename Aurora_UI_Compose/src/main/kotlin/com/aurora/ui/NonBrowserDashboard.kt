@@ -201,6 +201,18 @@ fun getGreeting(): String {
     return if (hr < 12) "Good Morning" else if (hr < 18) "Good Afternoon" else "Good Evening"
 }
 
+fun getTimeContext(): String {
+    val cal = java.util.Calendar.getInstance()
+    val hr = cal.get(java.util.Calendar.HOUR_OF_DAY)
+    val min = cal.get(java.util.Calendar.MINUTE)
+    val month = cal.get(java.util.Calendar.MONTH) + 1
+    val day = cal.get(java.util.Calendar.DAY_OF_MONTH)
+    val timeStr = "%02d:%02d".format(hr, min)
+    val dateStr = "%s %d".format(java.time.Month.of(month).name.take(3), day)
+    val period = if (hr < 6) "Night" else if (hr < 12) "Morning" else if (hr < 17) "Afternoon" else if (hr < 21) "Evening" else "Night"
+    return "$dateStr \u2022 $timeStr \u2022 $period"
+}
+
 fun toUiDownload(d: com.aurora.data.model.Download): Download {
     val prog = if (d.totalBytes > 0) ((d.downloadedBytes.toFloat() / d.totalBytes) * 100).toInt() else if (d.status == "COMPLETED") 100 else 0
     val tSize = when {
@@ -498,7 +510,7 @@ fun NonBrowserDashboard(
                             voiceOutputMessage = voiceOutputMessage,
                         )
                     }
-                    if (currentScreen != Screen.TabManagement) Box(Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 8.dp), contentAlignment = Alignment.Center) { Text("Designed for couch viewing \u2022 Rec. 2020 Display Compliant", color = AuroraColors.white10, fontSize = 8.sp, fontFamily = FontFamily.Monospace, letterSpacing = 1.5.sp) }
+                    if (currentScreen != Screen.TabManagement) Box(Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 8.dp), contentAlignment = Alignment.Center) { Text("Aurora Browser \u2022 v1.0", color = AuroraColors.white10, fontSize = 8.sp, fontFamily = FontFamily.Monospace, letterSpacing = 1.5.sp) }
                 }
             }
             if (settings.isRemoteVisible) RemoteControl(onDpadPress = { d -> effectiveDpad(d); Unit }, onSelectPress = { effectiveSelect(); Unit }, onBackPress = handleBackPress, onMenuPress = {
@@ -682,10 +694,10 @@ fun HomeScreenContent(
                     Box(Modifier.fillMaxWidth().height(1.dp).background(Brush.horizontalGradient(listOf(Color.Transparent, AuroraColors.white5, Color.Transparent))).graphicsLayer { alpha = 0.4f })
                     val s0 = rememberStaggerAlpha(StaggerDelay.Stagger0)
                     Column(Modifier.fillMaxWidth().border(1.dp, AuroraColors.white5).padding(bottom = 12.dp).graphicsLayer { alpha = s0 }) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { val ds = rememberBrandDotPulse(); Box(Modifier.size(6.dp).graphicsLayer(scaleX = ds, scaleY = ds).background(AuroraColors.auroraBlue, CircleShape)); Text("Aurora Operating Core", color = AuroraColors.white40, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) }
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { val ds = rememberBrandDotPulse(); Box(Modifier.size(6.dp).graphicsLayer(scaleX = ds, scaleY = ds).background(AuroraColors.auroraBlue, CircleShape)); Text("Aurora", color = AuroraColors.white40, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) }
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                            Column { Text("$greeting, ${currentProfile.name}", color = AuroraColors.white, fontSize = scaledSp(28), fontWeight = FontWeight.Bold); Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.AutoAwesome, null, Modifier.size(14.dp), AuroraColors.auroraPurple); Text("Living Glass interface is fully optimized for 3-meter living room viewing.", color = AuroraColors.white45, fontSize = scaledSp(11)) } }
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(AuroraColors.white5, RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.white10, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.Book, null, Modifier.size(14.dp), AuroraColors.auroraBlue); Text("LIVING GLASS V2.0", color = AuroraColors.white50, fontSize = 9.sp, fontFamily = FontFamily.Monospace) }
+                            Column { Text("$greeting, ${currentProfile.name}", color = AuroraColors.white, fontSize = scaledSp(28), fontWeight = FontWeight.Bold); Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.Star, null, Modifier.size(14.dp), AuroraColors.auroraPurple); Text(getTimeContext(), color = AuroraColors.white45, fontSize = scaledSp(11)) } }
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.background(AuroraColors.white5, RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.white10, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 6.dp)) { Icon(Icons.Default.AutoAwesome, null, Modifier.size(14.dp), AuroraColors.auroraBlue); Text("AURORA TV", color = AuroraColors.white50, fontSize = 9.sp, fontFamily = FontFamily.Monospace) }
                         }
                     }
                     val s1 = rememberStaggerAlpha(StaggerDelay.Stagger1); val cb = rememberCursorBlink()

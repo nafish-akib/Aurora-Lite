@@ -44,6 +44,7 @@ class SessionPreferences(private val context: Context) {
         private val KEY_DOWNLOAD_PATH = stringPreferencesKey("active_download_path")
         private val KEY_ACCENT_COLOR = stringPreferencesKey("accent_color")
         private val KEY_THEME_NAME = stringPreferencesKey("theme_name")
+        private val KEY_PROFILE_NAME = stringPreferencesKey("profile_name")
     }
 
     val accentColor: Flow<String> = context.dataStore.data.map { it[KEY_ACCENT_COLOR] ?: "#4DA3FF" }
@@ -51,6 +52,9 @@ class SessionPreferences(private val context: Context) {
 
     suspend fun setAccentColor(color: String) { context.dataStore.edit { it[KEY_ACCENT_COLOR] = color } }
     suspend fun setThemeName(name: String) { context.dataStore.edit { it[KEY_THEME_NAME] = name } }
+
+    val profileName: Flow<String> = context.dataStore.data.map { it[KEY_PROFILE_NAME] ?: "" }
+    suspend fun setProfileName(name: String) { context.dataStore.edit { it[KEY_PROFILE_NAME] = name } }
 
     // --- Preferences ---
 

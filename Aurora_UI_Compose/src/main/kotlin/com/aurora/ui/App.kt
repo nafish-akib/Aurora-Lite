@@ -9,13 +9,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,12 +42,18 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.Text
 import android.view.KeyEvent
 import com.aurora.browser.ui.components.BrowserCoordinator
 import com.aurora.browser.ui.components.Cursor
@@ -114,10 +126,12 @@ fun AuroraApp(initialUrl: String? = null) {
     val settings = remember { SettingsCoordinator() }
     val persistedAccent = remember { mutableStateOf("#4DA3FF") }
     val persistedTheme = remember { mutableStateOf("Aurora Dark") }
+    var loadedProfileName by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         val prefs = com.aurora.data.preferences.SessionPreferences(context)
         try { prefs.accentColor.firstOrNull()?.let { persistedAccent.value = it; settings.activeAccent = it } } catch (_: Exception) {}
         try { prefs.themeName.firstOrNull()?.let { persistedTheme.value = it; settings.activeTheme = it } } catch (_: Exception) {}
+        try { prefs.profileName.firstOrNull()?.let { name -> if (name.isNotBlank()) loadedProfileName = name } } catch (_: Exception) {}
     }
     LaunchedEffect(settings.activeAccent, settings.activeTheme) {
         persistedAccent.value = settings.activeAccent
@@ -135,7 +149,16 @@ fun AuroraApp(initialUrl: String? = null) {
         var isRendererCrashed by remember { mutableStateOf(false) }
         var crashedTabId by remember { mutableStateOf<String?>(null) }
         val profiles = remember { MockData.getProfiles() }
+        var showProfileSetup by remember { mutableStateOf(false) }
         var currentProfile by remember { mutableStateOf(profiles[0]) }
+
+        LaunchedEffect(loadedProfileName) {
+            if (loadedProfileName.isBlank()) {
+                showProfileSetup = true
+            } else {
+                currentProfile = currentProfile.copy(name = loadedProfileName)
+            }
+        }
 
         val uiTabs = sessionState.tabs.map { ts ->
             val s = ts.controller.state.value
@@ -1243,7 +1266,59 @@ val featuredCount = MockData.featuredStreamingSites.size
                     clicked = browser.remoteClicked
                 )
             }
+
+            if (showProfileSetup) {
+                ProfileSetupDialog(
+                    onSave = { name ->
+                        val prefs = com.aurora.data.preferences.SessionPreferences(context)
+                        uiScope.launch {
+                            try { prefs.setProfileName(name) } catch (_: Exception) {}
+                        }
+                        loadedProfileName = name
+                        currentProfile = currentProfile.copy(name = name)
+                        showProfileSetup = false
+                    }
+                )
+            }
         }
+        }
+    }
+}
+
+@Composable
+fun ProfileSetupDialog(onSave: (String) -> Unit) {
+    var name by remember { mutableStateOf("") }
+    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.85f)), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier.background(Color(0xFF1A1C23), RoundedCornerShape(24.dp)).border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(24.dp)).padding(40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(Modifier.size(56.dp).background(Brush.linearGradient(listOf(AuroraColors.auroraBlue, AuroraColors.auroraPurple)), RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
+                Text("A", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            }
+            Text("Welcome to Aurora", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text("Enter your name to personalize your browsing experience.", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp, textAlign = TextAlign.Center)
+            Box(
+                modifier = Modifier.fillMaxWidth().background(Color(0xFF0E0F14), RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.auroraBlue.copy(alpha = 0.3f), RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                BasicTextField(
+                    value = name,
+                    onValueChange = { name = it.take(30) },
+                    textStyle = TextStyle(color = Color.White, fontSize = 16.sp, textAlign = TextAlign.Center),
+                    cursorBrush = SolidColor(AuroraColors.auroraBlue),
+                    modifier = Modifier.fillMaxWidth(),
+                    decorationBox = { inner ->
+                        if (name.isEmpty()) Text("Your name", color = Color.White.copy(alpha = 0.3f), fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                        inner()
+                    }
+                )
+            }
+            Box(
+                modifier = Modifier.background(if (name.isBlank()) Color.White.copy(alpha = 0.1f) else AuroraColors.auroraBlue, RoundedCornerShape(12.dp)).padding(horizontal = 48.dp, vertical = 12.dp).clickable(enabled = name.isNotBlank()) { if (name.isNotBlank()) onSave(name.trim()) }
+            ) {
+                Text("Let's Go", color = if (name.isBlank()) Color.White.copy(alpha = 0.3f) else Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
