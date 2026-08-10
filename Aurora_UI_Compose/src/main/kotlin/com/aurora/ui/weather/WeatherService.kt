@@ -24,7 +24,10 @@ object WeatherService {
         return withContext(Dispatchers.IO) {
             try {
                 val loc = getBestLocation(context)
-                val (lat, lon) = loc.first to loc.second
+                val lat = loc.first; val lon = loc.second
+                if (lat.isNaN() || lon.isNaN()) {
+                    return@withContext WeatherData(0.0, 0, 0.0, WeatherCondition.UNKNOWN, "Unavailable")
+                }
                 val json = fetch("$OPEN_METEO?latitude=$lat&longitude=$lon&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=1", emptyMap())
                 val c = json.getJSONObject("current")
                 val d = json.getJSONObject("daily")
@@ -49,32 +52,30 @@ object WeatherService {
     }
 
     private fun getBestLocation(context: Context): Triple<Double, Double, String> {
-        val ip = tryGetIpLocation()
-        if (ip != null) return ip
-        return tryGetGpsLocation(context)
+        tryGetIpLocation("https://ipapi.co/json/", "")?.let { return it }
+        tryGetIpLocation("https://ipinfo.io/json", "city")?.let { return it }
+        tryGetGpsLocation(context)?.let { return Triple(it.first, it.second, "") }
+        return Triple(Double.NaN, Double.NaN, "")
     }
 
-    private fun tryGetIpLocation(): Triple<Double, Double, String>? {
+    private fun tryGetIpLocation(url: String, cityField: String): Triple<Double, Double, String>? {
         return try {
-            val json = fetch("https://ipapi.co/json/", emptyMap())
-            val city = json.optString("city", "")
-            val region = json.optString("region", "")
-            val lat = json.optDouble("latitude", Double.NaN)
-            val lon = json.optDouble("longitude", Double.NaN)
-            if (!lat.isNaN() && !lon.isNaN() && city.isNotBlank()) {
-                Triple(lat, lon, city)
-            } else null
+            val json = fetch(url, emptyMap())
+            val lat = json.optDouble("latitude", Double.NaN).let { if (it.isNaN()) json.optDouble("loc", Double.NaN).let { l -> if (!l.isNaN()) l.toString().split(",").firstOrNull()?.toDoubleOrNull() ?: Double.NaN else Double.NaN } else it }
+            val lon = json.optDouble("longitude", Double.NaN).let { if (it.isNaN()) json.optString("loc", "").split(",").getOrNull(1)?.trim()?.toDoubleOrNull() ?: Double.NaN else it }
+            val city = json.optString(if (cityField.isNotBlank()) cityField else "city", "")
+            if (!lat.isNaN() && !lon.isNaN()) Triple(lat, lon, city) else null
         } catch (_: Exception) { null }
     }
 
-    private fun tryGetGpsLocation(context: Context): Triple<Double, Double, String> {
+    private fun tryGetGpsLocation(context: Context): Pair<Double, Double>? {
         try {
             val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             for (p in listOf("gps", "network")) {
-                try { lm?.getLastKnownLocation(p)?.let { return Triple(it.latitude, it.longitude, "") } } catch (_: SecurityException) {}
+                try { lm?.getLastKnownLocation(p)?.let { return it.latitude to it.longitude } } catch (_: SecurityException) {}
             }
         } catch (_: Exception) {}
-        return Triple(40.7128, -74.0060, "")
+        return null
     }
 
     private suspend fun resolveCity(context: Context, lat: Double, lon: Double, ipCity: String): String {

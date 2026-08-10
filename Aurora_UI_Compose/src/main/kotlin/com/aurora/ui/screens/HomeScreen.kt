@@ -285,8 +285,7 @@ fun HomeScreen(
                         0 -> onOpenLibrary()
                         1 -> onOpenSettings()
                         2 -> onAIAssistant()
-                        3 -> onTabManagement()
-                        4 -> onOpenDiagnostics()
+                        3 -> onOpenDiagnostics()
                     }
                 },
                 onZoneFocusChange = onZoneFocusChange

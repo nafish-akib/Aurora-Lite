@@ -741,8 +741,7 @@ val featuredCount = MockData.featuredStreamingSites.size
                         0 -> { currentScreen = Screen.Library; triggerToast("Library") }
                         1 -> { currentScreen = Screen.Settings; triggerToast("Settings") }
                         2 -> { browser.isKeyboardOpen = true; home.isOmniboxFocused = true; home.searchQuery = "Ask Aurora: Summarize layout specs..." }
-                        3 -> { currentScreen = Screen.TabManagement; triggerToast("Tab Manager") }
-                        4 -> { isDiagnosticsOpen = true; triggerToast("Diagnostics") }
+                        3 -> { isDiagnosticsOpen = true; triggerToast("Diagnostics") }
                     }
                     "history" -> { val h = historyVm.screenState.value.entries.getOrNull(home.focusedItemIndex); if (h != null) handleWebNavigation(h.url) else { currentScreen = Screen.History; triggerToast("History") } }
                 }
