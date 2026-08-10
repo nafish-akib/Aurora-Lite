@@ -26,7 +26,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 @Composable
-fun WeatherBackground(condition: WeatherCondition, isNight: Boolean, modifier: Modifier = Modifier) {
+fun WeatherBackground(condition: WeatherCondition, isNight: Boolean, modifier: Modifier = Modifier, overlayOnly: Boolean = false) {
     val bgColors = when (condition) {
         WeatherCondition.CLEAR -> if (isNight) listOf(Color(0xFF0A0E27), Color(0xFF1A1B3A), Color(0xFF0D1130)) else listOf(Color(0xFF1A6DFF), Color(0xFF4A90FF), Color(0xFF87CEEB))
         WeatherCondition.PARTLY_CLOUDY -> if (isNight) listOf(Color(0xFF141832), Color(0xFF1E2348), Color(0xFF2A3060)) else listOf(Color(0xFF5B9BD5), Color(0xFF7FB8E8), Color(0xFFB0D4F1))
@@ -39,7 +39,7 @@ fun WeatherBackground(condition: WeatherCondition, isNight: Boolean, modifier: M
         WeatherCondition.UNKNOWN -> listOf(Color(0xFF1A1C2A), Color(0xFF2A2C3A), Color(0xFF3A3C4A))
     }
     Canvas(modifier.fillMaxSize()) {
-        drawRect(Brush.verticalGradient(bgColors))
+        if (!overlayOnly) drawRect(Brush.verticalGradient(bgColors))
     }
     when (condition) {
         WeatherCondition.RAIN, WeatherCondition.HEAVY_RAIN -> RainParticles(modifier, condition)

@@ -5,7 +5,11 @@ data class WeatherData(
     val humidity: Int,
     val windSpeed: Double,
     val condition: WeatherCondition,
-    val location: String
+    val location: String,
+    val tempHigh: Double = temperature + 3,
+    val tempLow: Double = temperature - 4,
+    val sunrise: String? = null,
+    val sunset: String? = null
 )
 
 enum class WeatherCondition(val label: String, val emoji: String) {
@@ -22,14 +26,9 @@ enum class WeatherCondition(val label: String, val emoji: String) {
 
     companion object {
         fun fromWmoCode(code: Int): WeatherCondition = when (code) {
-            0 -> CLEAR
-            1, 2, 3 -> PARTLY_CLOUDY
-            45, 48 -> FOG
-            51, 53, 55 -> DRIZZLE
-            61, 63, 65 -> RAIN
-            80, 81, 82 -> HEAVY_RAIN
-            71, 73, 75, 77, 85, 86 -> SNOW
-            95, 96, 99 -> THUNDERSTORM
+            0 -> CLEAR; 1, 2, 3 -> PARTLY_CLOUDY; 45, 48 -> FOG
+            51, 53, 55 -> DRIZZLE; 61, 63, 65 -> RAIN; 80, 81, 82 -> HEAVY_RAIN
+            71, 73, 75, 77, 85, 86 -> SNOW; 95, 96, 99 -> THUNDERSTORM
             else -> UNKNOWN
         }
     }

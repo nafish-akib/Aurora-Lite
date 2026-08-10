@@ -7,7 +7,6 @@ import android.location.LocationManager
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -24,16 +23,22 @@ object WeatherService {
         if (cached != null && System.currentTimeMillis() - lastFetchMs < 15 * 60 * 1000) return cached!!
         return withContext(Dispatchers.IO) {
             try {
-                val (lat, lon) = getLocation(context)
-                val json = fetch("$OPEN_METEO?latitude=$lat&longitude=$lon&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto")
+                val loc = getBestLocation(context)
+                val (lat, lon) = loc.first to loc.second
+                val json = fetch("$OPEN_METEO?latitude=$lat&longitude=$lon&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&forecast_days=1", emptyMap())
                 val c = json.getJSONObject("current")
-                val name = reverseGeocode(context, lat, lon)
+                val d = json.getJSONObject("daily")
+                val city = resolveCity(context, lat, lon, loc.third)
                 val data = WeatherData(
                     temperature = c.getDouble("temperature_2m"),
                     humidity = c.optInt("relative_humidity_2m", 0),
                     windSpeed = c.optDouble("wind_speed_10m", 0.0),
                     condition = WeatherCondition.fromWmoCode(c.optInt("weather_code", 0)),
-                    location = name
+                    location = city,
+                    tempHigh = d.optJSONArray("temperature_2m_max")?.optDouble(0) ?: (c.getDouble("temperature_2m") + 3),
+                    tempLow = d.optJSONArray("temperature_2m_min")?.optDouble(0) ?: (c.getDouble("temperature_2m") - 4),
+                    sunrise = d.optJSONArray("sunrise")?.optString(0)?.takeLast(5),
+                    sunset = d.optJSONArray("sunset")?.optString(0)?.takeLast(5)
                 )
                 cached = data; lastFetchMs = System.currentTimeMillis(); data
             } catch (e: Exception) {
@@ -43,20 +48,40 @@ object WeatherService {
         }
     }
 
-    private fun getLocation(context: Context): Pair<Double, Double> {
+    private fun getBestLocation(context: Context): Triple<Double, Double, String> {
+        val ip = tryGetIpLocation()
+        if (ip != null) return ip
+        return tryGetGpsLocation(context)
+    }
+
+    private fun tryGetIpLocation(): Triple<Double, Double, String>? {
+        return try {
+            val json = fetch("https://ipapi.co/json/", emptyMap())
+            val city = json.optString("city", "")
+            val region = json.optString("region", "")
+            val lat = json.optDouble("latitude", Double.NaN)
+            val lon = json.optDouble("longitude", Double.NaN)
+            if (!lat.isNaN() && !lon.isNaN() && city.isNotBlank()) {
+                Triple(lat, lon, city)
+            } else null
+        } catch (_: Exception) { null }
+    }
+
+    private fun tryGetGpsLocation(context: Context): Triple<Double, Double, String> {
         try {
             val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
             for (p in listOf("gps", "network")) {
-                try { lm?.getLastKnownLocation(p)?.let { return it.latitude to it.longitude } } catch (_: SecurityException) {}
+                try { lm?.getLastKnownLocation(p)?.let { return Triple(it.latitude, it.longitude, "") } } catch (_: SecurityException) {}
             }
         } catch (_: Exception) {}
-        return 40.7128 to -74.0060
+        return Triple(40.7128, -74.0060, "")
     }
 
-    private suspend fun reverseGeocode(context: Context, lat: Double, lon: Double): String {
+    private suspend fun resolveCity(context: Context, lat: Double, lon: Double, ipCity: String): String {
+        if (ipCity.isNotBlank()) return ipCity
         try {
             val geocoder = Geocoder(context, Locale.getDefault())
-            val addrs: MutableList<Address>? = geocoder.getFromLocation(lat, lon, 1)
+            val addrs = geocoder.getFromLocation(lat, lon, 1) as? MutableList<Address>
             val a = addrs?.firstOrNull()
             val name = a?.locality ?: a?.subAdminArea ?: a?.adminArea ?: a?.countryName
             if (!name.isNullOrBlank()) return name
@@ -68,7 +93,7 @@ object WeatherService {
         } catch (_: Exception) { "Unknown" }
     }
 
-    private fun fetch(url: String, headers: Map<String, String> = emptyMap()): JSONObject {
+    private fun fetch(url: String, headers: Map<String, String>): JSONObject {
         val conn = URL(url).openConnection() as HttpURLConnection
         conn.connectTimeout = 8000; conn.readTimeout = 8000
         headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
