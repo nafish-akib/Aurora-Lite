@@ -284,8 +284,10 @@ fun HomeScreen(
                     when (index) {
                         0 -> onOpenLibrary()
                         1 -> onOpenSettings()
-                        2 -> onAIAssistant()
-                        3 -> onOpenDiagnostics()
+                        2 -> onOpenPasswords()
+                        3 -> onAIAssistant()
+                        4 -> onOpenDiagnostics()
+                        5 -> onTabManagement()
                     }
                 },
                 onZoneFocusChange = onZoneFocusChange
