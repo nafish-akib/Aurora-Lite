@@ -285,6 +285,18 @@ class WebViewBrowserSession(
                 currentUrl = request.url.toString()
                 callbacks?.onUrlChange(currentUrl)
             }
+            val path = request.url.path ?: ""
+            val ext = path.substringAfterLast('.', "").lowercase()
+            if (ext in DOWNLOADABLE_EXTENSIONS) {
+                callbacks?.onDownloadRequest(
+                    request.url.toString(),
+                    WebViewMappings.fileNameFrom(request.url.toString(), null),
+                    MIME_MAP[ext] ?: "application/octet-stream",
+                    -1,
+                    null
+                )
+                return true
+            }
             return false
         }
 
@@ -525,6 +537,56 @@ class WebViewBrowserSession(
 
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+
+        private val DOWNLOADABLE_EXTENSIONS = setOf(
+            "apk", "rar", "zip", "7z", "tar", "gz", "bz2", "xz", "lz", "zst",
+            "exe", "msi", "dmg", "pkg", "deb", "rpm", "appimage", "run", "sh", "bat", "cmd", "ps1",
+            "mp3", "wav", "flac", "aac", "ogg", "m4a", "wma", "opus", "mid", "midi",
+            "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "3gp", "ts", "m2ts",
+            "iso", "img", "bin", "cue", "nrg",
+            "pdf", "epub", "mobi", "azw3", "cbz", "cbr",
+            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp",
+            "torrent", "magnet",
+            "psd", "ai", "eps", "svgz",
+            "ttf", "otf", "woff", "woff2",
+            "csv", "json", "xml", "yaml", "yml", "log", "sql", "db", "sqlite",
+            "dll", "so", "dylib", "sys", "drv",
+            "rom", "iso", "gba", "nds", "cia", "nsp", "xci", "wbfs", "wad", "wud",
+            "sav", "bak", "tmp"
+        )
+
+        private val MIME_MAP = mapOf(
+            "apk" to "application/vnd.android.package-archive",
+            "rar" to "application/x-rar-compressed", "zip" to "application/zip",
+            "7z" to "application/x-7z-compressed", "tar" to "application/x-tar",
+            "gz" to "application/gzip", "bz2" to "application/x-bzip2",
+            "xz" to "application/x-xz",
+            "exe" to "application/x-msdownload", "msi" to "application/x-msi",
+            "dmg" to "application/x-apple-diskimage", "pkg" to "application/x-xar",
+            "deb" to "application/vnd.debian.binary-package",
+            "mp3" to "audio/mpeg", "wav" to "audio/wav", "flac" to "audio/flac",
+            "aac" to "audio/aac", "ogg" to "audio/ogg", "m4a" to "audio/mp4",
+            "wma" to "audio/x-ms-wma", "opus" to "audio/opus",
+            "mp4" to "video/mp4", "mkv" to "video/x-matroska",
+            "avi" to "video/x-msvideo", "mov" to "video/quicktime",
+            "wmv" to "video/x-ms-wmv", "flv" to "video/x-flv",
+            "webm" to "video/webm", "3gp" to "video/3gpp",
+            "iso" to "application/x-iso9660-image",
+            "pdf" to "application/pdf", "epub" to "application/epub+zip",
+            "doc" to "application/msword",
+            "docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "xls" to "application/vnd.ms-excel",
+            "xlsx" to "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "ppt" to "application/vnd.ms-powerpoint",
+            "pptx" to "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "torrent" to "application/x-bittorrent",
+            "psd" to "image/vnd.adobe.photoshop",
+            "ttf" to "font/ttf", "otf" to "font/otf",
+            "woff" to "font/woff", "woff2" to "font/woff2",
+            "csv" to "text/csv", "json" to "application/json",
+            "xml" to "application/xml",
+            "dll" to "application/x-msdownload"
+        )
 
         val webViewVersion: String
             get() = runCatching {
