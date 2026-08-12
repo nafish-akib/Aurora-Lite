@@ -131,7 +131,18 @@ object MockData {
         "https://youtube.com" to R.drawable.site_youtube,
         "https://zattoo.com" to R.drawable.site_zattoo,
         "https://zdf.de" to R.drawable.site_zdf_mediathek,
-        "https://zee5.com" to R.drawable.site_zee5
+        "https://zee5.com" to R.drawable.site_zee5,
+        "https://facebook.com" to R.drawable.site_facebook,
+        "https://messenger.com" to R.drawable.site_messenger,
+        "https://web.whatsapp.com" to R.drawable.site_whatsapp,
+        "https://instagram.com" to R.drawable.site_instagram,
+        "https://x.com" to R.drawable.site_x,
+        "https://linkedin.com" to R.drawable.site_linkedin,
+        "https://web.telegram.org" to R.drawable.site_telegram,
+        "https://discord.com" to R.drawable.site_discord,
+        "https://pinterest.com" to R.drawable.site_pinterest,
+        "https://tumblr.com" to R.drawable.site_tumblr,
+        "https://threads.net" to R.drawable.site_threads
     )
 
     fun logoResFor(site: PopularSite): Int = siteLogoRes[site.url] ?: 0
