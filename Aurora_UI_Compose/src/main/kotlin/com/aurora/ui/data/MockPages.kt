@@ -142,7 +142,8 @@ object MockData {
         "https://discord.com" to R.drawable.site_discord,
         "https://pinterest.com" to R.drawable.site_pinterest,
         "https://tumblr.com" to R.drawable.site_tumblr,
-        "https://threads.net" to R.drawable.site_threads
+        "https://threads.net" to R.drawable.site_threads,
+        "https://animepahe.pw" to R.drawable.site_animepahe
     )
 
     fun logoResFor(site: PopularSite): Int = siteLogoRes[site.url] ?: 0
