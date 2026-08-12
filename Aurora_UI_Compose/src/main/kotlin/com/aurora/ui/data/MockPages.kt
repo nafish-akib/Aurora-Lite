@@ -267,6 +267,25 @@ object MockData {
         PopularSite("DStv", "https://dstv.com", "Tv", 0xFF6EBA2C)
     )
 
+    fun socialRowGroupName(row: Int): String = "social_r$row"
+    fun socialRowGroupNames(): List<String> =
+        (0 until (socialSites.size + STREAMING_COLUMNS - 1) / STREAMING_COLUMNS).map { socialRowGroupName(it) }
+
+    val socialSites = listOf(
+        PopularSite("Facebook", "https://facebook.com", "Social", 0xFF1877F2),
+        PopularSite("Messenger", "https://messenger.com", "Social", 0xFF00B2FF),
+        PopularSite("WhatsApp", "https://web.whatsapp.com", "Social", 0xFF25D366),
+        PopularSite("Instagram", "https://instagram.com", "Social", 0xFFE4405F),
+        PopularSite("X (Twitter)", "https://x.com", "Social", 0xFF111111),
+        PopularSite("Reddit", "https://reddit.com", "Social", 0xFFFF4500),
+        PopularSite("LinkedIn", "https://linkedin.com", "Social", 0xFF0A66C2),
+        PopularSite("Telegram", "https://web.telegram.org", "Social", 0xFF26A5E4),
+        PopularSite("Discord", "https://discord.com", "Social", 0xFF5865F2),
+        PopularSite("Pinterest", "https://pinterest.com", "Social", 0xFFE60023),
+        PopularSite("Tumblr", "https://tumblr.com", "Social", 0xFF36465D),
+        PopularSite("Threads", "https://threads.net", "Social", 0xFF7C6FF0)
+    )
+
     val mockVideos = listOf(
         MockVideo(
             "vid-1", "Aurora OS — Living Glass Concept Trailer", "Aurora Labs",

@@ -58,6 +58,7 @@ class WebViewBrowserSession(
     private var currentUrl: String = ""
     private var pageLoadFailed = false
     private var desktopEnabled = false
+    private var uaOverrideActive = false
     private var systemUserAgent = ""
     private var desktopUserAgent = ""
     private var rendererCrashCount = 0
@@ -96,6 +97,7 @@ class WebViewBrowserSession(
     override fun loadUrl(url: String) {
         val view = webView
         if (view != null) {
+            applyAutoDesktopUa(url)
             view.loadUrl(url)
         } else {
             pendingUrl = url
@@ -123,9 +125,19 @@ class WebViewBrowserSession(
     override fun setDesktopMode(enabled: Boolean) {
         if (!settings.userAgentValue.isNullOrEmpty()) return
         desktopEnabled = enabled
+        uaOverrideActive = true
         val wv = webView ?: return
         wv.settings.userAgentString = if (enabled) desktopUserAgent else systemUserAgent
         wv.reload()
+    }
+
+    private fun applyAutoDesktopUa(url: String) {
+        if (uaOverrideActive || desktopEnabled) return
+        if (!settings.userAgentValue.isNullOrEmpty()) return
+        val wv = webView ?: return
+        val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
+        val needsDesktop = DESKTOP_REQUIRED_DOMAINS.any { host == it || host.endsWith(".$it") }
+        wv.settings.userAgentString = if (needsDesktop) desktopUserAgent else systemUserAgent
     }
 
     override fun isDesktopMode(): Boolean = desktopEnabled
@@ -251,7 +263,7 @@ class WebViewBrowserSession(
 
         loginVault?.install(view)
         view.addJavascriptInterface(blobBridge, "AuroraBlob")
-        pendingUrl?.let { view.loadUrl(it); pendingUrl = null }
+        pendingUrl?.let { applyAutoDesktopUa(it); view.loadUrl(it); pendingUrl = null }
     }
 
     private val pageClient = object : WebViewClient() {
@@ -282,6 +294,7 @@ class WebViewBrowserSession(
                 return true
             }
             if (request.isForMainFrame) {
+                applyAutoDesktopUa(request.url.toString())
                 currentUrl = request.url.toString()
                 callbacks?.onUrlChange(currentUrl)
             }
@@ -537,6 +550,14 @@ class WebViewBrowserSession(
 
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+
+        private val DESKTOP_REQUIRED_DOMAINS = setOf(
+            "facebook.com", "fb.com", "fb.watch", "messenger.com", "m.me",
+            "whatsapp.com", "instagram.com", "threads.net",
+            "twitter.com", "x.com", "t.co",
+            "reddit.com", "linkedin.com", "discord.com", "tiktok.com",
+            "pinterest.com", "tumblr.com", "telegram.org", "web.telegram.org"
+        )
 
         private val DOWNLOADABLE_EXTENSIONS = setOf(
             "apk", "rar", "zip", "7z", "tar", "gz", "bz2", "xz", "lz", "zst",
