@@ -1,6 +1,14 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+val keystoreProperties = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) load(FileInputStream(f))
 }
 
 android {
@@ -17,10 +25,23 @@ android {
 
     splits {
         abi {
-            isEnable = true
+            val isBundling = gradle.startParameter.taskNames.any { it.lowercase().contains("bundle") }
+            isEnable = !isBundling
             reset()
             include("arm64-v8a", "armeabi-v7a", "x86_64")
             isUniversalApk = false
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            val f = keystoreProperties
+            if (f.isNotEmpty()) {
+                storeFile = rootProject.file(f.getProperty("storeFile"))
+                storePassword = f.getProperty("storePassword")
+                keyAlias = f.getProperty("keyAlias")
+                keyPassword = f.getProperty("keyPassword")
+            }
         }
     }
 
@@ -32,7 +53,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -55,5 +76,3 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
-
-
