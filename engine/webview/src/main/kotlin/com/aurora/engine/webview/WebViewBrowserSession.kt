@@ -98,6 +98,7 @@ class WebViewBrowserSession(
         val view = webView
         if (view != null) {
             applyAutoDesktopUa(url)
+            applyLayerMode(url)
             view.loadUrl(url)
         } else {
             pendingUrl = url
@@ -136,8 +137,18 @@ class WebViewBrowserSession(
         if (!settings.userAgentValue.isNullOrEmpty()) return
         val wv = webView ?: return
         val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
-        val needsDesktop = DESKTOP_REQUIRED_DOMAINS.any { host == it || host.endsWith(".$it") }
+        val needsDesktop = DEFAULT_DESKTOP_UA_FOR_ALL || DESKTOP_REQUIRED_DOMAINS.any { host == it || host.endsWith(".$it") }
         wv.settings.userAgentString = if (needsDesktop) desktopUserAgent else systemUserAgent
+    }
+
+    private fun applyLayerMode(url: String) {
+        val wv = webView ?: return
+        val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
+        val needsSoftware = SOFTWARE_RENDER_DOMAINS.any { host == it || host.endsWith(".$it") }
+        wv.setLayerType(
+            if (needsSoftware) View.LAYER_TYPE_SOFTWARE else View.LAYER_TYPE_HARDWARE,
+            null
+        )
     }
 
     override fun isDesktopMode(): Boolean = desktopEnabled
@@ -239,6 +250,7 @@ class WebViewBrowserSession(
         view.isHorizontalScrollBarEnabled = false
         view.isVerticalScrollBarEnabled = false
         view.requestFocus()
+        Log.i("AuroraWebView", "WebView engine: $webViewVersion")
 
         view.webViewClient = pageClient
         view.webChromeClient = chromeClient
@@ -263,7 +275,7 @@ class WebViewBrowserSession(
 
         loginVault?.install(view)
         view.addJavascriptInterface(blobBridge, "AuroraBlob")
-        pendingUrl?.let { applyAutoDesktopUa(it); view.loadUrl(it); pendingUrl = null }
+        pendingUrl?.let { applyAutoDesktopUa(it); applyLayerMode(it); view.loadUrl(it); pendingUrl = null }
     }
 
     private val pageClient = object : WebViewClient() {
@@ -295,6 +307,7 @@ class WebViewBrowserSession(
             }
             if (request.isForMainFrame) {
                 applyAutoDesktopUa(request.url.toString())
+                applyLayerMode(request.url.toString())
                 currentUrl = request.url.toString()
                 callbacks?.onUrlChange(currentUrl)
             }
@@ -548,8 +561,17 @@ class WebViewBrowserSession(
     companion object {
         private const val MAX_RENDERER_CRASHES = 3
 
+        private const val DEFAULT_DESKTOP_UA_FOR_ALL = true
+
         private const val DESKTOP_USER_AGENT =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+
+        private val SOFTWARE_RENDER_DOMAINS = setOf(
+            "chatgpt.com", "openai.com", "claude.ai", "gemini.google.com",
+            "copilot.microsoft.com", "perplexity.ai", "deepseek.com",
+            "grok.com", "poe.com", "meta.ai", "mistral.ai", "you.com",
+            "huggingface.co"
+        )
 
         private val DESKTOP_REQUIRED_DOMAINS = setOf(
             "facebook.com", "fb.com", "fb.watch", "messenger.com", "m.me",
