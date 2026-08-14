@@ -4,7 +4,7 @@ import com.aurora.engine.BrowserSettings
 
 class WebViewBrowserSettings(
     initialUserAgent: String? = null,
-    initialAllowPopups: Boolean = false,
+    initialAllowPopups: Boolean = true,
     initialAllowCookies: Boolean = true,
     initialAllowLocation: Boolean = true,
     initialAllowNotifications: Boolean = true,

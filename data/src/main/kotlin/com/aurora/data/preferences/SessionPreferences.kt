@@ -142,7 +142,7 @@ class SessionPreferences(private val context: Context) {
         context.dataStore.edit { it[KEY_ALLOW_COOKIES] = allow }
     }
 
-    val allowPopups: Flow<Boolean> = context.dataStore.data.map { it[KEY_ALLOW_POPUPS] ?: false }
+    val allowPopups: Flow<Boolean> = context.dataStore.data.map { it[KEY_ALLOW_POPUPS] ?: true }
 
     suspend fun setAllowPopups(allow: Boolean) {
         context.dataStore.edit { it[KEY_ALLOW_POPUPS] = allow }

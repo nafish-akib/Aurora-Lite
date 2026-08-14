@@ -24,7 +24,7 @@ class InMemorySessionRepository : SessionRepository {
     private val _userAgent = MutableStateFlow<String?>(null)
     private val _allowJavaScript = MutableStateFlow(true)
     private val _allowCookies = MutableStateFlow(true)
-    private val _allowPopups = MutableStateFlow(false)
+    private val _allowPopups = MutableStateFlow(true)
     private val _allowLocation = MutableStateFlow(true)
     private val _allowNotifications = MutableStateFlow(true)
     private val _defaultSearchEngine = MutableStateFlow("Google")
