@@ -98,7 +98,6 @@ class WebViewBrowserSession(
         val view = webView
         if (view != null) {
             applyAutoDesktopUa(url)
-            applyLayerMode(url)
             view.loadUrl(url)
         } else {
             pendingUrl = url
@@ -139,16 +138,6 @@ class WebViewBrowserSession(
         val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
         val needsDesktop = DEFAULT_DESKTOP_UA_FOR_ALL || DESKTOP_REQUIRED_DOMAINS.any { host == it || host.endsWith(".$it") }
         wv.settings.userAgentString = if (needsDesktop) desktopUserAgent else systemUserAgent
-    }
-
-    private fun applyLayerMode(url: String) {
-        val wv = webView ?: return
-        val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
-        val needsSoftware = SOFTWARE_RENDER_DOMAINS.any { host == it || host.endsWith(".$it") }
-        wv.setLayerType(
-            if (needsSoftware) View.LAYER_TYPE_SOFTWARE else View.LAYER_TYPE_HARDWARE,
-            null
-        )
     }
 
     override fun isDesktopMode(): Boolean = desktopEnabled
@@ -215,6 +204,7 @@ class WebViewBrowserSession(
     }
 
     private fun configureView(view: WebView) {
+        WebView.setWebContentsDebuggingEnabled(true)
         val webSettings = view.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
@@ -275,7 +265,7 @@ class WebViewBrowserSession(
 
         loginVault?.install(view)
         view.addJavascriptInterface(blobBridge, "AuroraBlob")
-        pendingUrl?.let { applyAutoDesktopUa(it); applyLayerMode(it); view.loadUrl(it); pendingUrl = null }
+        pendingUrl?.let { applyAutoDesktopUa(it); view.loadUrl(it); pendingUrl = null }
     }
 
     private val pageClient = object : WebViewClient() {
@@ -307,7 +297,6 @@ class WebViewBrowserSession(
             }
             if (request.isForMainFrame) {
                 applyAutoDesktopUa(request.url.toString())
-                applyLayerMode(request.url.toString())
                 currentUrl = request.url.toString()
                 callbacks?.onUrlChange(currentUrl)
             }
@@ -351,6 +340,9 @@ class WebViewBrowserSession(
             callbacks?.onPageFinish(currentUrl, !pageLoadFailed)
             loginVault?.let { it.lastCapturedUrl = currentUrl; it.injectCaptureScript(view) }
             view.evaluateJavascript(WebViewBlobBridge.INJECT_SCRIPT, null)
+            view.evaluateJavascript(PAGE_DIAG_SCRIPT) { res ->
+                Log.d("AuroraDiag", "url=$currentUrl $res")
+            }
         }
 
         override fun onReceivedError(view: WebView, request: WebResourceRequest?, error: WebResourceError?) {
@@ -556,6 +548,11 @@ class WebViewBrowserSession(
             Log.d("AuroraWebView", "JS Prompt [$url]: $message")
             return false
         }
+
+        override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage): Boolean {
+            Log.d("AuroraConsole", "[${consoleMessage.messageLevel()}] ${consoleMessage.sourceId()}:${consoleMessage.lineNumber()} ${consoleMessage.message()}")
+            return true
+        }
     }
 
     companion object {
@@ -563,15 +560,12 @@ class WebViewBrowserSession(
 
         private const val DEFAULT_DESKTOP_UA_FOR_ALL = true
 
+        private val PAGE_DIAG_SCRIPT = """
+            (function(){try{var b=document.body;return 'ready='+document.readyState+' children='+(b?b.children.length:-1)+' bg='+(b?getComputedStyle(b).backgroundColor:'n/a')+' textLen='+(b?b.innerText.length:0)}catch(e){return 'err:'+e.message}})();
+        """.trimIndent()
+
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
-
-        private val SOFTWARE_RENDER_DOMAINS = setOf(
-            "chatgpt.com", "openai.com", "claude.ai", "gemini.google.com",
-            "copilot.microsoft.com", "perplexity.ai", "deepseek.com",
-            "grok.com", "poe.com", "meta.ai", "mistral.ai", "you.com",
-            "huggingface.co"
-        )
 
         private val DESKTOP_REQUIRED_DOMAINS = setOf(
             "facebook.com", "fb.com", "fb.watch", "messenger.com", "m.me",
