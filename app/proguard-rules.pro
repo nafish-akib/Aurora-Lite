@@ -1,10 +1,9 @@
-# Compose
--dontwarn androidx.compose.**
--keep class androidx.compose.** { *; }
+# Compose ships its own consumer R8 rules; no blanket keep needed.
 
-# Browser state models (used via copy/reflection)
--keep class com.aurora.browser.state.** { *; }
--keep class com.aurora.data.model.** { *; }
+# WebView @JavascriptInterface bridges are invoked by WebView via reflection;
+# AGP's default rules keep the annotated methods, keep the bridge classes too.
+-keep class com.aurora.engine.webview.WebViewLoginStorage$LoginBridge { *; }
+-keep class com.aurora.engine.webview.WebViewBlobBridge { *; }
 
 # Room
 -keep class * extends androidx.room.RoomDatabase
@@ -20,6 +19,10 @@
     <fields>;
 }
 
+# Browser state models (persisted app state)
+-keep class com.aurora.browser.state.** { *; }
+-keep class com.aurora.data.model.** { *; }
+
 # Coroutines
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
@@ -29,20 +32,6 @@
 
 # Focus engine
 -keep class com.aurora.ui.focus.** { *; }
-
-# Engine callbacks (interface methods)
--keep class com.aurora.engine.BrowserCallbacks { *; }
--keep class com.aurora.engine.BrowserSession { *; }
--keep class com.aurora.engine.BrowserEngine { *; }
-
-# WebView engine — @JavascriptInterface bridges are invoked by WebView via
-# reflection; AGP's default rules keep the annotated methods, this keeps
-# the enclosing bridge classes intact as well.
--keep class com.aurora.engine.webview.WebViewLoginStorage$LoginBridge { *; }
-
-# WebView renderer crash recovery uses the recovery callback through WebView;
-# keep session client implementations intact.
--keep class com.aurora.engine.webview.WebViewBrowserSession { *; }
 
 # Retrofit/OkHttp if used
 -dontwarn okhttp3.**
