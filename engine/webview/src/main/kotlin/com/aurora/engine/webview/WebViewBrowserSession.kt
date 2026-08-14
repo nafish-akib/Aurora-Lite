@@ -205,6 +205,11 @@ class WebViewBrowserSession(
 
     private fun configureView(view: WebView) {
         WebView.setWebContentsDebuggingEnabled(true)
+        androidx.webkit.WebViewCompat.addDocumentStartJavaScript(
+            view,
+            EARLY_DIAG_SCRIPT,
+            setOf("*")
+        )
         val webSettings = view.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
@@ -343,6 +348,13 @@ class WebViewBrowserSession(
             view.evaluateJavascript(PAGE_DIAG_SCRIPT) { res ->
                 Log.d("AuroraDiag", "url=$currentUrl $res")
             }
+            view.postDelayed({
+                runCatching {
+                    view.evaluateJavascript(PAGE_DIAG_SCRIPT) { res ->
+                        Log.d("AuroraDiag", "late url=$currentUrl $res")
+                    }
+                }
+            }, 2500)
         }
 
         override fun onReceivedError(view: WebView, request: WebResourceRequest?, error: WebResourceError?) {
@@ -562,6 +574,20 @@ class WebViewBrowserSession(
 
         private val PAGE_DIAG_SCRIPT = """
             (function(){try{var b=document.body;return 'ready='+document.readyState+' children='+(b?b.children.length:-1)+' bg='+(b?getComputedStyle(b).backgroundColor:'n/a')+' textLen='+(b?b.innerText.length:0)}catch(e){return 'err:'+e.message}})();
+        """.trimIndent()
+
+        private val EARLY_DIAG_SCRIPT = """
+            (function(){
+              if(window.__auroraEarlyDiag) return;
+              window.__auroraEarlyDiag = true;
+              window.addEventListener('error', function(e){
+                console.log('AURORA_ERR ' + (e.message||'unknown') + ' @ ' + (e.filename||'') + ':' + (e.lineno||0));
+              }, true);
+              window.addEventListener('unhandledrejection', function(e){
+                var r = e.reason;
+                console.log('AURORA_PROMISE ' + (r && r.message ? r.message : String(r)));
+              });
+            })();
         """.trimIndent()
 
         private const val DESKTOP_USER_AGENT =

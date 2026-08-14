@@ -19,5 +19,6 @@ dependencies {
     implementation(project(":engine:api"))
     implementation(project(":data"))
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.webkit)
     testImplementation(libs.junit)
 }
