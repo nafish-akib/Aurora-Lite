@@ -556,7 +556,11 @@ class WebViewBrowserSession(
             "whatsapp.com", "instagram.com", "threads.net",
             "twitter.com", "x.com", "t.co",
             "reddit.com", "linkedin.com", "discord.com", "tiktok.com",
-            "pinterest.com", "tumblr.com", "telegram.org", "web.telegram.org"
+            "pinterest.com", "tumblr.com", "telegram.org", "web.telegram.org",
+            "chatgpt.com", "openai.com", "claude.ai", "gemini.google.com",
+            "copilot.microsoft.com", "perplexity.ai", "deepseek.com",
+            "grok.com", "poe.com", "meta.ai", "mistral.ai", "you.com",
+            "huggingface.co"
         )
 
         private val DOWNLOADABLE_EXTENSIONS = setOf(

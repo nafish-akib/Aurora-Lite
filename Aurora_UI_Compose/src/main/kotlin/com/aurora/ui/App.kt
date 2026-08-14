@@ -558,7 +558,7 @@ fun AuroraApp(initialUrl: String? = null) {
         }
 
         val headerZones = if (developerMode) listOf("header_brand", "header_wifi", "header_settings", "header_diagnostics") else listOf("header_brand", "header_wifi", "header_settings")
-        val dashboardGroupOrder = listOf("header", "tab_header", "tab_list", "tab_confirm", "search", "continue_browsing") + MockData.featuredRowGroupNames() + MockData.streamingRowGroupNames() + listOf("favorites") + MockData.socialRowGroupNames() + listOf("trending", "quick_actions", "settings_sidebar", "settings_panel", "developer")
+        val dashboardGroupOrder = listOf("header", "tab_header", "tab_list", "tab_confirm", "search", "continue_browsing") + MockData.featuredRowGroupNames() + MockData.streamingRowGroupNames() + listOf("favorites") + MockData.socialRowGroupNames() + MockData.aiRowGroupNames() + listOf("trending", "quick_actions", "settings_sidebar", "settings_panel", "developer")
         val focusEngine = remember { com.aurora.ui.focus.FocusEngine(groupOrder = dashboardGroupOrder) }
 
         val handleDpadPress: (String) -> Boolean = { direction: String ->
@@ -614,6 +614,9 @@ val streamIdx = streamingZones.indexOf(home.focusedZone)
 val socialGrid = MockData.socialSites.chunked(MockData.STREAMING_COLUMNS)
 val socialZones = socialGrid.mapIndexed { i, _ -> MockData.socialRowGroupName(i) }
 val socialIdx = socialZones.indexOf(home.focusedZone)
+val aiGrid = MockData.aiSites.chunked(MockData.STREAMING_COLUMNS)
+val aiZones = aiGrid.mapIndexed { i, _ -> MockData.aiRowGroupName(i) }
+val aiIdx = aiZones.indexOf(home.focusedZone)
 val featuredCount = MockData.featuredStreamingSites.size
                 val quickCount = 5
                 val historyCount = historyVm.screenState.value.entries.take(4).size
@@ -624,33 +627,33 @@ val featuredCount = MockData.featuredStreamingSites.size
                     "trending" -> trendingCount
                     "quickActions" -> quickCount
                     "history" -> historyCount
-                    else -> if (streamingZones.contains(z)) streamingGrid[streamingZones.indexOf(z)].size else if (socialZones.contains(z)) socialGrid[socialZones.indexOf(z)].size else 0
+                    else -> if (streamingZones.contains(z)) streamingGrid[streamingZones.indexOf(z)].size else if (socialZones.contains(z)) socialGrid[socialZones.indexOf(z)].size else if (aiZones.contains(z)) aiGrid[aiZones.indexOf(z)].size else 0
                 } }
                 val focusZone: (String) -> Unit = { z -> home.focusedZone = z; home.focusedItemIndex = 0 }
                 val focusAt: (String, Int) -> Unit = { z, item -> home.focusedZone = z; home.focusedItemIndex = item }
                 when (direction) {
-                    "DOWN" -> if (hdrIdx >= 0) focusZone("search") else if (streamIdx >= 0) { if (streamIdx < streamingZones.size - 1) focusZone(streamingZones[streamIdx + 1]) else focusZone(if (favCount > 0) "favorites" else if (socialZones.isNotEmpty()) socialZones[0] else "trending") } else if (socialIdx >= 0) { if (socialIdx < socialZones.size - 1) focusZone(socialZones[socialIdx + 1]) else focusZone("trending") } else when (home.focusedZone) {
+                    "DOWN" -> if (hdrIdx >= 0) focusZone("search") else if (streamIdx >= 0) { if (streamIdx < streamingZones.size - 1) focusZone(streamingZones[streamIdx + 1]) else focusZone(if (favCount > 0) "favorites" else if (socialZones.isNotEmpty()) socialZones[0] else "trending") } else if (socialIdx >= 0) { if (socialIdx < socialZones.size - 1) focusZone(socialZones[socialIdx + 1]) else focusZone(if (aiZones.isNotEmpty()) aiZones[0] else "trending") } else if (aiIdx >= 0) { if (aiIdx < aiZones.size - 1) focusZone(aiZones[aiIdx + 1]) else focusZone("trending") } else when (home.focusedZone) {
                         "search" -> focusZone("continue")
                         "continue" -> focusZone("streaming")
                         "streaming" -> if (streamingZones.isNotEmpty()) focusZone(streamingZones[0]) else focusZone(if (favCount > 0) "favorites" else "trending")
-                        "favorites" -> if (socialZones.isNotEmpty()) focusZone(socialZones[0]) else focusZone("trending")
+                        "favorites" -> if (socialZones.isNotEmpty()) focusZone(socialZones[0]) else if (aiZones.isNotEmpty()) focusZone(aiZones[0]) else focusZone("trending")
                         "trending" -> focusZone("quickActions")
                         "downloads" -> focusZone("quickActions")
                         "quickActions" -> focusZone("history")
                         "history" -> focusZone("search")
                         else -> focusZone("search")
                     }
-                    "UP" -> if (home.focusedZone == "search") focusZone(headerZones.last()) else if (hdrIdx >= 0) focusZone("search") else if (streamIdx >= 0) { if (streamIdx > 0) focusZone(streamingZones[streamIdx - 1]) else focusZone("streaming") } else if (socialIdx >= 0) { if (socialIdx > 0) focusZone(socialZones[socialIdx - 1]) else focusZone(if (favCount > 0) "favorites" else if (streamingZones.isNotEmpty()) streamingZones.last() else "streaming") } else when (home.focusedZone) {
+                    "UP" -> if (home.focusedZone == "search") focusZone(headerZones.last()) else if (hdrIdx >= 0) focusZone("search") else if (streamIdx >= 0) { if (streamIdx > 0) focusZone(streamingZones[streamIdx - 1]) else focusZone("streaming") } else if (socialIdx >= 0) { if (socialIdx > 0) focusZone(socialZones[socialIdx - 1]) else focusZone(if (favCount > 0) "favorites" else if (streamingZones.isNotEmpty()) streamingZones.last() else "streaming") } else if (aiIdx >= 0) { if (aiIdx > 0) focusZone(aiZones[aiIdx - 1]) else focusZone(if (socialZones.isNotEmpty()) socialZones.last() else "favorites") } else when (home.focusedZone) {
                         "continue" -> focusZone("search")
                         "streaming" -> focusZone("continue")
                         "favorites" -> if (streamingZones.isNotEmpty()) focusZone(streamingZones.last()) else focusZone("streaming")
-                        "trending" -> if (socialZones.isNotEmpty()) focusZone(socialZones.last()) else focusZone("favorites")
+                        "trending" -> if (socialZones.isNotEmpty()) focusZone(socialZones.last()) else if (aiZones.isNotEmpty()) focusZone(aiZones.last()) else focusZone("favorites")
                         "downloads" -> focusZone("favorites")
                         "quickActions" -> focusZone("trending")
                         "history" -> focusZone("quickActions")
                         else -> focusZone("search")
                     }
-                    "LEFT" -> if (hdrIdx >= 0) { home.focusedZone = headerZones[(hdrIdx - 1 + headerZones.size) % headerZones.size]; home.focusedItemIndex = 0 } else if (streamIdx >= 0) { if (home.focusedItemIndex > 0) home.focusedItemIndex-- else if (streamIdx > 0) focusAt(streamingZones[streamIdx - 1], (streamingGrid[streamIdx - 1].size - 1).coerceAtLeast(0)) else focusAt("streaming", (featuredCount - 1).coerceAtLeast(0)) } else if (socialIdx >= 0) { if (home.focusedItemIndex > 0) home.focusedItemIndex-- else if (socialIdx > 0) focusAt(socialZones[socialIdx - 1], (socialGrid[socialIdx - 1].size - 1).coerceAtLeast(0)) else focusAt("favorites", (favCount - 1).coerceAtLeast(0)) } else when (home.focusedZone) {
+                    "LEFT" -> if (hdrIdx >= 0) { home.focusedZone = headerZones[(hdrIdx - 1 + headerZones.size) % headerZones.size]; home.focusedItemIndex = 0 } else if (streamIdx >= 0) { if (home.focusedItemIndex > 0) home.focusedItemIndex-- else if (streamIdx > 0) focusAt(streamingZones[streamIdx - 1], (streamingGrid[streamIdx - 1].size - 1).coerceAtLeast(0)) else focusAt("streaming", (featuredCount - 1).coerceAtLeast(0)) } else if (socialIdx >= 0) { if (home.focusedItemIndex > 0) home.focusedItemIndex-- else if (socialIdx > 0) focusAt(socialZones[socialIdx - 1], (socialGrid[socialIdx - 1].size - 1).coerceAtLeast(0)) else focusAt("favorites", (favCount - 1).coerceAtLeast(0)) } else if (aiIdx >= 0) { if (home.focusedItemIndex > 0) home.focusedItemIndex-- else if (aiIdx > 0) focusAt(aiZones[aiIdx - 1], (aiGrid[aiIdx - 1].size - 1).coerceAtLeast(0)) else focusAt(socialZones.last(), (socialGrid.last().size - 1).coerceAtLeast(0)) } else when (home.focusedZone) {
                         "search" -> {}
                         "continue" -> if (home.focusedItemIndex > 0) home.focusedItemIndex-- else focusZone("search")
                         "streaming" -> if (home.focusedItemIndex > 0) home.focusedItemIndex--
@@ -670,6 +673,11 @@ val featuredCount = MockData.featuredStreamingSites.size
                         val rowSize = socialGrid[socialIdx].size
                         if (home.focusedItemIndex < rowSize - 1) home.focusedItemIndex++
                         else if (socialIdx < socialZones.size - 1) { home.focusedZone = socialZones[socialIdx + 1]; home.focusedItemIndex = 0 }
+                        else { home.focusedZone = if (aiZones.isNotEmpty()) aiZones[0] else "trending"; home.focusedItemIndex = 0 }
+                    } else if (aiIdx >= 0) {
+                        val rowSize = aiGrid[aiIdx].size
+                        if (home.focusedItemIndex < rowSize - 1) home.focusedItemIndex++
+                        else if (aiIdx < aiZones.size - 1) { home.focusedZone = aiZones[aiIdx + 1]; home.focusedItemIndex = 0 }
                         else { home.focusedZone = "trending"; home.focusedItemIndex = 0 }
                     } else {
                         val itemCount = zoneCount(home.focusedZone)
@@ -737,6 +745,11 @@ val featuredCount = MockData.featuredStreamingSites.size
                 } else if (home.focusedZone.startsWith("social_r")) {
                     val row = home.focusedZone.removePrefix("social_r").toIntOrNull() ?: -1
                     val chunk = MockData.socialSites.chunked(MockData.STREAMING_COLUMNS).getOrNull(row)
+                    val idx = home.focusedItemIndex
+                    if (chunk != null && idx in chunk.indices) handleWebNavigation(chunk[idx].url)
+                } else if (home.focusedZone.startsWith("ai_r")) {
+                    val row = home.focusedZone.removePrefix("ai_r").toIntOrNull() ?: -1
+                    val chunk = MockData.aiSites.chunked(MockData.STREAMING_COLUMNS).getOrNull(row)
                     val idx = home.focusedItemIndex
                     if (chunk != null && idx in chunk.indices) handleWebNavigation(chunk[idx].url)
                 } else when (home.focusedZone) {

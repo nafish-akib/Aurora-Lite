@@ -191,6 +191,7 @@ fun getIconComponent(iconName: String, tint: Color = Color.White, iconSize: andr
         "Movie" -> Icons.Filled.Movie; "PlayArrow" -> Icons.Filled.PlayArrow
         "Globe" -> Icons.Filled.Public; "Star" -> Icons.Filled.Star
         "MusicNote" -> Icons.Filled.MusicNote; "Social" -> Icons.Filled.Face
+        "AI" -> Icons.Filled.AutoAwesome
         else -> Icons.Default.Book
     }
     Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(iconSize))
@@ -725,6 +726,7 @@ fun HomeScreenContent(
                     StreamingHubSection(focusEngine = focusEngine!!, onNavigate = onNavigate)
                     SpeedDialSection(focusEngine = focusEngine!!, onNavigate = onNavigate)
                     SocialHubSection(focusEngine = focusEngine!!, onNavigate = onNavigate)
+                    AiHubSection(focusEngine = focusEngine!!, onNavigate = onNavigate)
                     TrendingSection(focusEngine = focusEngine!!, onNavigate = onNavigate, downloads = downloads, setCurrentScreen = { setCurrentScreen(it) }, triggerToast = triggerToast)
                     QuickActionsSection(developerMode = developerMode, focusEngine = focusEngine, onQuickAction = onQuickAction)
                 }
@@ -1124,6 +1126,31 @@ fun SocialHubSection(
                 rowSites.forEachIndexed { colIndex, site ->
                     FocusBinding(id = "social_${rowIndex}_$colIndex", focusEngine = focusEngine, group = MockData.socialRowGroupName(rowIndex), order = colIndex, onClick = { onNavigate(site.url) }) { isFocused -> val sc = Color(site.color)
                     Column(Modifier.weight(1f).height(120.dp).cardLift(isFocused).lightSweep(isFocused).background(if (isFocused) AuroraColors.neutral900 else AuroraColors.neutral950.copy(alpha = 0.65f), RoundedCornerShape(24.dp)).border(1.dp, if (isFocused) AuroraColors.auroraBlue.copy(alpha = 0.6f) else AuroraColors.white5, RoundedCornerShape(24.dp)).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        Box(Modifier.size(40.dp).background(sc.copy(alpha = 0.08f), RoundedCornerShape(16.dp)).border(1.dp, sc.copy(alpha = 0.15f), RoundedCornerShape(16.dp)).graphicsLayer { if (isFocused) { scaleX = 1.1f; scaleY = 1.1f } }, contentAlignment = Alignment.Center) { val siteLogo = MockData.logoResFor(site); if (siteLogo != 0) Image(painter = painterResource(siteLogo), contentDescription = null, modifier = Modifier.size(26.dp)) else getIconComponent(site.icon, sc, 22.dp) }
+                        Spacer(Modifier.height(8.dp)); Text(site.name, color = if (isFocused) AuroraColors.white else AuroraColors.white70, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Box(Modifier.width(24.dp).height(3.dp).background(sc.copy(alpha = if (isFocused) 1f else 0.4f), RoundedCornerShape(4.dp)))
+                    }
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun AiHubSection(
+    focusEngine: FocusEngine,
+    onNavigate: (String) -> Unit
+) {
+    Column {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { Box(Modifier.size(6.dp).background(AuroraColors.auroraEmerald, CircleShape)); Text("AI HUB", color = AuroraColors.white45, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp) }; Text("CHAT • ASSISTANTS • GENERATORS", color = AuroraColors.white30, fontSize = 8.sp, fontFamily = FontFamily.Monospace) }
+        Spacer(Modifier.height(8.dp));
+        MockData.aiSites.chunked(MockData.STREAMING_COLUMNS).forEachIndexed { rowIndex, rowSites ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                rowSites.forEachIndexed { colIndex, site ->
+                    FocusBinding(id = "ai_${rowIndex}_$colIndex", focusEngine = focusEngine, group = MockData.aiRowGroupName(rowIndex), order = colIndex, onClick = { onNavigate(site.url) }) { isFocused -> val sc = Color(site.color)
+                    Column(Modifier.weight(1f).height(120.dp).cardLift(isFocused).lightSweep(isFocused).background(if (isFocused) AuroraColors.neutral900 else AuroraColors.neutral950.copy(alpha = 0.65f), RoundedCornerShape(24.dp)).border(1.dp, if (isFocused) AuroraColors.auroraEmerald.copy(alpha = 0.6f) else AuroraColors.white5, RoundedCornerShape(24.dp)).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                         Box(Modifier.size(40.dp).background(sc.copy(alpha = 0.08f), RoundedCornerShape(16.dp)).border(1.dp, sc.copy(alpha = 0.15f), RoundedCornerShape(16.dp)).graphicsLayer { if (isFocused) { scaleX = 1.1f; scaleY = 1.1f } }, contentAlignment = Alignment.Center) { val siteLogo = MockData.logoResFor(site); if (siteLogo != 0) Image(painter = painterResource(siteLogo), contentDescription = null, modifier = Modifier.size(26.dp)) else getIconComponent(site.icon, sc, 22.dp) }
                         Spacer(Modifier.height(8.dp)); Text(site.name, color = if (isFocused) AuroraColors.white else AuroraColors.white70, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Box(Modifier.width(24.dp).height(3.dp).background(sc.copy(alpha = if (isFocused) 1f else 0.4f), RoundedCornerShape(4.dp)))

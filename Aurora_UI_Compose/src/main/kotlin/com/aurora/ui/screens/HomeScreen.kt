@@ -235,6 +235,14 @@ fun HomeScreen(
             onZoneFocusChange = onZoneFocusChange
         )
 
+        AiHubSection(
+            sites = MockData.aiSites,
+            focusedZone = focusedZone,
+            focusedItemIndex = focusedItemIndex,
+            onSiteClick = { site -> onNavigate(site.url) },
+            onZoneFocusChange = onZoneFocusChange
+        )
+
         FocusScrollZone(zone = "favorites", focusedZone = focusedZone) {
         StaggeredSection(StaggerStep.THREE) {
             FavoritesRow(
@@ -878,6 +886,65 @@ fun SocialHubSection(
                 sites = chunk,
                 zone = rowZone,
                 label = if (row == 0) "SOCIAL & COMMUNITY" else null,
+                focusedZone = focusedZone,
+                focusedItemIndex = focusedItemIndex,
+                onSiteClick = onSiteClick,
+                onZoneFocusChange = onZoneFocusChange
+            )
+            }
+        }
+    }
+}
+
+@Composable
+fun AiHubSection(
+    sites: List<MockData.PopularSite>,
+    focusedZone: String,
+    focusedItemIndex: Int,
+    onSiteClick: (MockData.PopularSite) -> Unit,
+    onZoneFocusChange: (String, Int) -> Unit
+) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .background(AuroraColors.Emerald, CircleShape)
+                )
+                Text(
+                    text = "AI Hub",
+                    style = AuroraTypography.MonoLabel,
+                    color = Color.White.copy(alpha = 0.45f),
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+            }
+            Text(
+                text = "${sites.size} AI assistants",
+                style = AuroraTypography.MonoLabel,
+                color = Color.White.copy(alpha = 0.3f),
+                fontSize = 9.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val grid = sites.chunked(MockData.STREAMING_COLUMNS)
+        grid.forEachIndexed { row, chunk ->
+            val rowZone = MockData.aiRowGroupName(row)
+            FocusScrollZone(zone = rowZone, focusedZone = focusedZone) {
+            StreamingSiteRow(
+                sites = chunk,
+                zone = rowZone,
+                label = if (row == 0) "AI CHAT & ASSISTANTS" else null,
                 focusedZone = focusedZone,
                 focusedItemIndex = focusedItemIndex,
                 onSiteClick = onSiteClick,

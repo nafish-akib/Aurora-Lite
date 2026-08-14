@@ -143,7 +143,19 @@ object MockData {
         "https://pinterest.com" to R.drawable.site_pinterest,
         "https://tumblr.com" to R.drawable.site_tumblr,
         "https://threads.net" to R.drawable.site_threads,
-        "https://animepahe.pw" to R.drawable.site_animepahe
+        "https://animepahe.pw" to R.drawable.site_animepahe,
+        "https://chatgpt.com" to R.drawable.site_chatgpt,
+        "https://claude.ai" to R.drawable.site_claude,
+        "https://gemini.google.com" to R.drawable.site_gemini,
+        "https://copilot.microsoft.com" to R.drawable.site_copilot,
+        "https://perplexity.ai" to R.drawable.site_perplexity,
+        "https://chat.deepseek.com" to R.drawable.site_deepseek,
+        "https://grok.com" to R.drawable.site_grok,
+        "https://poe.com" to R.drawable.site_poe,
+        "https://meta.ai" to R.drawable.site_meta_ai,
+        "https://chat.mistral.ai" to R.drawable.site_mistral,
+        "https://you.com" to R.drawable.site_you,
+        "https://huggingface.co" to R.drawable.site_huggingface
     )
 
     fun logoResFor(site: PopularSite): Int = siteLogoRes[site.url] ?: 0
@@ -296,6 +308,25 @@ object MockData {
         PopularSite("Pinterest", "https://pinterest.com", "Social", 0xFFE60023),
         PopularSite("Tumblr", "https://tumblr.com", "Social", 0xFF36465D),
         PopularSite("Threads", "https://threads.net", "Social", 0xFF7C6FF0)
+    )
+
+    fun aiRowGroupName(row: Int): String = "ai_r$row"
+    fun aiRowGroupNames(): List<String> =
+        (0 until (aiSites.size + STREAMING_COLUMNS - 1) / STREAMING_COLUMNS).map { aiRowGroupName(it) }
+
+    val aiSites = listOf(
+        PopularSite("ChatGPT", "https://chatgpt.com", "AI", 0xFF10A37F),
+        PopularSite("Claude", "https://claude.ai", "AI", 0xFFD97757),
+        PopularSite("Gemini", "https://gemini.google.com", "AI", 0xFF8E75B2),
+        PopularSite("Copilot", "https://copilot.microsoft.com", "AI", 0xFF6C5CE7),
+        PopularSite("Perplexity", "https://perplexity.ai", "AI", 0xFF1FB8CD),
+        PopularSite("DeepSeek", "https://chat.deepseek.com", "AI", 0xFF5786FE),
+        PopularSite("Grok", "https://grok.com", "AI", 0xFF111111),
+        PopularSite("Poe", "https://poe.com", "AI", 0xFF5D5CDE),
+        PopularSite("Meta AI", "https://meta.ai", "AI", 0xFF0467DF),
+        PopularSite("Mistral", "https://chat.mistral.ai", "AI", 0xFFFF7000),
+        PopularSite("You.com", "https://you.com", "AI", 0xFF6F4EFF),
+        PopularSite("Hugging Face", "https://huggingface.co", "AI", 0xFFFFD21E)
     )
 
     val mockVideos = listOf(
