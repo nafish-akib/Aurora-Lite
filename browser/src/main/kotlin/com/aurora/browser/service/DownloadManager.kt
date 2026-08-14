@@ -78,13 +78,15 @@ class DownloadManager(private val context: Context) {
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID, "Downloads", NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "Download progress and completion notifications"
-            setShowBadge(false)
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            val channel = NotificationChannel(
+                CHANNEL_ID, "Downloads", NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Download progress and completion notifications"
+                setShowBadge(false)
+            }
+            notificationManager.createNotificationChannel(channel)
         }
-        notificationManager.createNotificationChannel(channel)
     }
 
     private fun registerNetworkReceiver() {

@@ -8,7 +8,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        minSdk = 30
+        minSdk = 26
         buildConfigField("String", "AURORA_ENGINE_ID", "\"webview\"")
     }
 
