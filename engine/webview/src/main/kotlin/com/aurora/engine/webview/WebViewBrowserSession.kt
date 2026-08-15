@@ -178,11 +178,15 @@ class WebViewBrowserSession(
     }
 
     private fun applyAutoDesktopUa(url: String) {
-        if (uaOverrideActive || desktopEnabled) return
+        if (uaOverrideActive || desktopEnabled) {
+            Log.d("AuroraDiag", "uaDecision url=$url SKIP uaOverride=$uaOverrideActive desktopEnabled=$desktopEnabled")
+            return
+        }
         if (!settings.userAgentValue.isNullOrEmpty()) return
         val wv = webView ?: return
         val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
         val needsDesktop = DEFAULT_DESKTOP_UA_FOR_ALL || DESKTOP_REQUIRED_DOMAINS.any { host == it || host.endsWith(".$it") }
+        Log.d("AuroraDiag", "uaDecision url=$url host=$host needsDesktop=$needsDesktop")
         wv.settings.userAgentString = if (needsDesktop) desktopUserAgent else systemUserAgent
         applyUserAgentMetadata(wv.settings, needsDesktop)
     }
@@ -274,8 +278,13 @@ class WebViewBrowserSession(
         webSettings.setGeolocationEnabled(true)
 
         systemUserAgent = WebSettings.getDefaultUserAgent(view.context)
+        if (systemUserAgent.contains("Windows NT") || !systemUserAgent.contains("Android")) {
+            systemUserAgent = DEFAULT_MOBILE_USER_AGENT
+            Log.w("AuroraWebView", "Device default UA looks desktop; using mobile UA instead")
+        }
         desktopUserAgent = settings.userAgentValue
             ?: DESKTOP_USER_AGENT
+        Log.d("AuroraDiag", "uaInit system=${systemUserAgent.substring(0, 60)} desktopEnabled=$desktopEnabled")
         webSettings.userAgentString = if (desktopEnabled || DEFAULT_DESKTOP_UA_FOR_ALL) desktopUserAgent else systemUserAgent
         applyBrowserCompatibilityProfile(view, webSettings)
         applyUserAgentMetadata(webSettings, desktopEnabled || DEFAULT_DESKTOP_UA_FOR_ALL)
@@ -752,6 +761,8 @@ class WebViewBrowserSession(
         private const val DESKTOP_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$DESKTOP_CHROME_VERSION Safari/537.36"
 
+        private const val DEFAULT_MOBILE_USER_AGENT =
+            "Mozilla/5.0 (Linux; Android 16; SM-A156E Build/BP4A.251205.006; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/151.0.7922.83 Mobile Safari/537.36"
         private val PAGE_DIAG_SCRIPT = """
             (function(){try{var b=document.body;return 'ready='+document.readyState+' children='+(b?b.children.length:-1)+' bg='+(b?getComputedStyle(b).backgroundColor:'n/a')+' textLen='+(b?b.innerText.length:0)}catch(e){return 'err:'+e.message}})();
         """.trimIndent()
@@ -795,40 +806,48 @@ class WebViewBrowserSession(
                 }
               }
 
-              defineNavigatorValue('userAgent', desktopUa);
-              defineNavigatorValue('appVersion', desktopUa.replace(/^Mozilla\//, ''));
-              defineNavigatorValue('platform', 'Win32');
-              defineNavigatorValue('vendor', 'Google Inc.');
-              defineNavigatorValue('maxTouchPoints', 0);
+              var realUa = '';
+              try { realUa = navigator.userAgent; } catch(e) {}
+              var isDesktopPage = realUa.indexOf('Windows NT') !== -1 || realUa.indexOf('X11') !== -1;
+
+              if (isDesktopPage) {
+                defineNavigatorValue('userAgent', desktopUa);
+                defineNavigatorValue('appVersion', desktopUa.replace(/^Mozilla\//, ''));
+                defineNavigatorValue('platform', 'Win32');
+                defineNavigatorValue('vendor', 'Google Inc.');
+                defineNavigatorValue('maxTouchPoints', 0);
+              }
 
               var uaData = {
                 brands: brandVersions,
-                mobile: false,
-                platform: 'Windows',
+                mobile: !isDesktopPage,
+                platform: isDesktopPage ? 'Windows' : 'Android',
                 getHighEntropyValues: function(hints) {
                   var values = {
-                    architecture: 'x86',
-                    bitness: '64',
+                    architecture: isDesktopPage ? 'x86' : '',
+                    bitness: isDesktopPage ? '64' : '0',
                     brands: brandVersions,
                     fullVersionList: fullVersionList,
-                    mobile: false,
-                    model: '',
-                    platform: 'Windows',
-                    platformVersion: '10.0.0',
+                    mobile: !isDesktopPage,
+                    model: isDesktopPage ? '' : '',
+                    platform: isDesktopPage ? 'Windows' : 'Android',
+                    platformVersion: isDesktopPage ? '10.0.0' : '',
                     uaFullVersion: chromeFull,
                     wow64: false
                   };
-                  var out = { brands: brandVersions, mobile: false, platform: 'Windows' };
+                  var out = { brands: brandVersions, mobile: !isDesktopPage, platform: isDesktopPage ? 'Windows' : 'Android' };
                   (hints || []).forEach(function(hint) {
                     if (Object.prototype.hasOwnProperty.call(values, hint)) out[hint] = values[hint];
                   });
                   return Promise.resolve(out);
                 },
                 toJSON: function() {
-                  return { brands: brandVersions, mobile: false, platform: 'Windows' };
+                  return { brands: brandVersions, mobile: !isDesktopPage, platform: isDesktopPage ? 'Windows' : 'Android' };
                 }
               };
-              defineNavigatorValue('userAgentData', uaData);
+              if (isDesktopPage) {
+                defineNavigatorValue('userAgentData', uaData);
+              }
 
               try {
                 if (!window.chrome) {
