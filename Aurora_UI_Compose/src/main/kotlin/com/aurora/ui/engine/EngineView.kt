@@ -35,6 +35,10 @@ fun EngineView(
     val view = remember(session, context) { session.createView(context) }
     val container = remember(session, context) {
         android.widget.FrameLayout(context).apply {
+            val parent = view.parent
+            if (parent != null && parent !== this) {
+                (parent as android.view.ViewGroup).removeView(view)
+            }
             addView(
                 view,
                 android.widget.FrameLayout.LayoutParams(
