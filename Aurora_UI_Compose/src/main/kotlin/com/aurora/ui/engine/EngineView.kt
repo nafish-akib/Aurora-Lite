@@ -33,6 +33,17 @@ fun EngineView(
 ) {
     val context = LocalContext.current
     val view = remember(session, context) { session.createView(context) }
+    val container = remember(session, context) {
+        android.widget.FrameLayout(context).apply {
+            addView(
+                view,
+                android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+        }
+    }
     val focusRequester = remember { FocusRequester() }
     val currentBlockFocus = rememberUpdatedState(blockFocus)
     val currentOnHoverMove = rememberUpdatedState(onHoverMove)
@@ -111,7 +122,7 @@ val hoverListener = View.OnGenericMotionListener { _, event ->
     }
 
     AndroidView(
-        factory = { view },
+        factory = { container },
         update = { },
         modifier = modifier.focusRequester(focusRequester)
     )

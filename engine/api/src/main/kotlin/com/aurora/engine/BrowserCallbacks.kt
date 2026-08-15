@@ -14,6 +14,6 @@ interface BrowserCallbacks {
     fun onNewSession(url: String): Boolean = false
     fun onLoadError(url: String, errorCode: Int, description: String)
     fun onDownloadRequest(url: String, fileName: String, mimeType: String, contentLength: Long, savedFilePath: String? = null) = Unit
+    fun onFaviconChange(url: String) = Unit
     fun onFatalError(message: String) = Unit
 }
-

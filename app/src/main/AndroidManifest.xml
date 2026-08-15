@@ -34,6 +34,7 @@
             android:name="com.aurora.ui.MainActivity"
             android:hardwareAccelerated="true"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard|screenLayout|smallestScreenSize|uiMode|fontScale|density"
+            android:windowSoftInputMode="adjustNothing"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>

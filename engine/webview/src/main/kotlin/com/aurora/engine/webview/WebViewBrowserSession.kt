@@ -2,6 +2,7 @@ package com.aurora.engine.webview
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Message
 import android.util.Log
@@ -10,6 +11,7 @@ import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.SafeBrowsingResponse
+import android.webkit.ServiceWorkerController
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -18,6 +20,11 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.webkit.UserAgentMetadata
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
+import com.aurora.data.DataService
 import com.aurora.data.cache.MetadataCache
 import com.aurora.data.cache.ThumbnailCache
 import com.aurora.data.service.ThumbnailService
@@ -30,9 +37,14 @@ import com.aurora.engine.LoginStorage
 import com.aurora.engine.PermissionRequest
 import com.aurora.engine.SitePermissionsService
 import com.aurora.engine.WebsiteMetadataServiceImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 
 class WebViewBrowserSession(
@@ -45,6 +57,7 @@ class WebViewBrowserSession(
     override var onNewSessionRequest: ((url: String) -> BrowserSession?)? = null
 
     private val permissionsService = SitePermissionsService()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _permissionRequests = MutableSharedFlow<PermissionRequest>(replay = 0)
     override val permissionRequests: SharedFlow<PermissionRequest> = _permissionRequests.asSharedFlow()
 
@@ -64,6 +77,7 @@ class WebViewBrowserSession(
     private var rendererCrashCount = 0
     private var customView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
+    private var lastCachedFaviconDomain = ""
     private val blobBridge: WebViewBlobBridge by lazy {
         WebViewBlobBridge(appContext) { url, fileName, mimeType, savedFilePath ->
             callbacks?.onDownloadRequest(url, fileName, mimeType, 0, savedFilePath)
@@ -89,6 +103,7 @@ class WebViewBrowserSession(
             }.onFailure { Log.w("AuroraWebView", "WebView destroy failed", it) }
         }
         webView = null
+        scope.cancel()
         customView?.let { customViewCallback?.onCustomViewHidden() }
         customView = null
         customViewCallback = null
@@ -96,12 +111,42 @@ class WebViewBrowserSession(
 
     override fun loadUrl(url: String) {
         val view = webView
-        if (view != null) {
-            applyAutoDesktopUa(url)
+        if (view == null) {
+            pendingUrl = url
+            return
+        }
+        applyAutoDesktopUa(url)
+        if (view.width > 0 && view.height > 0) {
             view.loadUrl(url)
         } else {
+            Log.d("AuroraDiag", "loadUrl deferred (view=${view.width}x${view.height}) url=$url")
             pendingUrl = url
+            deferLoadUntilSized(view)
         }
+    }
+
+    private fun deferLoadUntilSized(view: WebView) {
+        view.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(v: View, l: Int, t: Int, r: Int, b: Int, ol: Int, ot: Int, or: Int, ob: Int) {
+                if (r - l > 0 && b - t > 0) {
+                    v.removeOnLayoutChangeListener(this)
+                    pendingUrl?.let { pending ->
+                        Log.d("AuroraDiag", "deferred load now sized=${r - l}x${b - t} url=$pending")
+                        applyAutoDesktopUa(pending)
+                        view.loadUrl(pending)
+                        pendingUrl = null
+                    }
+                }
+            }
+        })
+        view.postDelayed({
+            pendingUrl?.let { pending ->
+                Log.d("AuroraDiag", "deferred load fallback (size=${view.width}x${view.height}) url=$pending")
+                applyAutoDesktopUa(pending)
+                view.loadUrl(pending)
+                pendingUrl = null
+            }
+        }, 10_000)
     }
 
     private var pendingUrl: String? = null
@@ -128,6 +173,7 @@ class WebViewBrowserSession(
         uaOverrideActive = true
         val wv = webView ?: return
         wv.settings.userAgentString = if (enabled) desktopUserAgent else systemUserAgent
+        applyUserAgentMetadata(wv.settings, enabled)
         wv.reload()
     }
 
@@ -138,6 +184,7 @@ class WebViewBrowserSession(
         val host = runCatching { Uri.parse(url).host?.lowercase() ?: "" }.getOrDefault("")
         val needsDesktop = DEFAULT_DESKTOP_UA_FOR_ALL || DESKTOP_REQUIRED_DOMAINS.any { host == it || host.endsWith(".$it") }
         wv.settings.userAgentString = if (needsDesktop) desktopUserAgent else systemUserAgent
+        applyUserAgentMetadata(wv.settings, needsDesktop)
     }
 
     override fun isDesktopMode(): Boolean = desktopEnabled
@@ -205,11 +252,7 @@ class WebViewBrowserSession(
 
     private fun configureView(view: WebView) {
         WebView.setWebContentsDebuggingEnabled(true)
-        androidx.webkit.WebViewCompat.addDocumentStartJavaScript(
-            view,
-            EARLY_DIAG_SCRIPT,
-            setOf("*")
-        )
+        installDocumentStartScript(view)
         val webSettings = view.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true
@@ -223,7 +266,7 @@ class WebViewBrowserSession(
         webSettings.loadsImagesAutomatically = true
         webSettings.allowFileAccess = false
         webSettings.allowContentAccess = true
-        webSettings.javaScriptCanOpenWindowsAutomatically = false
+        webSettings.javaScriptCanOpenWindowsAutomatically = true
         webSettings.cacheMode = WebSettings.LOAD_DEFAULT
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webSettings.setSaveFormData(false)
@@ -233,7 +276,10 @@ class WebViewBrowserSession(
         systemUserAgent = WebSettings.getDefaultUserAgent(view.context)
         desktopUserAgent = settings.userAgentValue
             ?: DESKTOP_USER_AGENT
-        webSettings.userAgentString = if (desktopEnabled) desktopUserAgent else systemUserAgent
+        webSettings.userAgentString = if (desktopEnabled || DEFAULT_DESKTOP_UA_FOR_ALL) desktopUserAgent else systemUserAgent
+        applyBrowserCompatibilityProfile(view, webSettings)
+        applyUserAgentMetadata(webSettings, desktopEnabled || DEFAULT_DESKTOP_UA_FOR_ALL)
+        configureServiceWorkers()
 
         CookieManager.getInstance().setAcceptCookie(settings.cookiesAllowed)
         CookieManager.getInstance().setAcceptThirdPartyCookies(view, settings.thirdPartyCookiesAllowed)
@@ -242,9 +288,15 @@ class WebViewBrowserSession(
         webSettings.setSafeBrowsingEnabled(true)
 
         view.overScrollMode = View.OVER_SCROLL_NEVER
+        view.setBackgroundColor(Color.WHITE)
+        view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         view.isHorizontalScrollBarEnabled = false
         view.isVerticalScrollBarEnabled = false
         view.requestFocus()
+        view.post {
+            view.layoutParams = view.layoutParams
+            view.requestLayout()
+        }
         Log.i("AuroraWebView", "WebView engine: $webViewVersion")
 
         view.webViewClient = pageClient
@@ -270,7 +322,126 @@ class WebViewBrowserSession(
 
         loginVault?.install(view)
         view.addJavascriptInterface(blobBridge, "AuroraBlob")
-        pendingUrl?.let { applyAutoDesktopUa(it); view.loadUrl(it); pendingUrl = null }
+        view.addOnLayoutChangeListener { v, l, t, r, b, ol, ot, or, ob ->
+            Log.d("AuroraDiag", "layoutChange ${r - l}x${b - t} (old ${or - ol}x${ob - ot})")
+        }
+        view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                Log.d("AuroraDiag", "viewAttached size=${v.width}x${v.height}")
+            }
+            override fun onViewDetachedFromWindow(v: View) {
+                Log.d("AuroraDiag", "viewDetached size=${v.width}x${v.height}")
+            }
+        })
+        pendingUrl?.let { url ->
+            if (view.width > 0 && view.height > 0) {
+                Log.d("AuroraDiag", "loadNow sized=${view.width}x${view.height} url=$url")
+                applyAutoDesktopUa(url)
+                view.loadUrl(url)
+                pendingUrl = null
+            } else {
+                Log.d("AuroraDiag", "loadDeferred (view=${view.width}x${view.height}) url=$url")
+                deferLoadUntilSized(view)
+            }
+        }
+    }
+
+    private fun installDocumentStartScript(view: WebView) {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            Log.w("AuroraWebView", "Document-start JavaScript is not supported by this WebView provider")
+            return
+        }
+        runCatching {
+            WebViewCompat.addDocumentStartJavaScript(view, BROWSER_COMPAT_SCRIPT, setOf("*"))
+        }.onFailure { Log.w("AuroraWebView", "Browser compatibility script install failed", it) }
+    }
+
+    private fun applyBrowserCompatibilityProfile(view: WebView, webSettings: WebSettings) {
+        runCatching {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.OFF_SCREEN_PRERASTER)) {
+                WebSettingsCompat.setOffscreenPreRaster(webSettings, true)
+            }
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+                WebSettingsCompat.setForceDark(webSettings, WebSettingsCompat.FORCE_DARK_OFF)
+            }
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(webSettings, false)
+            }
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
+                WebSettingsCompat.setRequestedWithHeaderOriginAllowList(webSettings, emptySet())
+            }
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.DOWNLOAD_FAVICONS_ENABLED)) {
+                WebSettingsCompat.setDownloadFaviconsEnabled(webSettings, true)
+            }
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_AUTHENTICATION)) {
+                WebSettingsCompat.setWebAuthenticationSupport(
+                    webSettings,
+                    WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER
+                )
+            }
+        }.onFailure { Log.w("AuroraWebView", "Compatibility profile failed", it) }
+    }
+
+    private fun applyUserAgentMetadata(webSettings: WebSettings, desktop: Boolean) {
+        if (!desktop || !WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA)) return
+        runCatching {
+            val brands = listOf(
+                UserAgentMetadata.BrandVersion.Builder()
+                    .setBrand("Chromium")
+                    .setMajorVersion(DESKTOP_CHROME_MAJOR)
+                    .setFullVersion(DESKTOP_CHROME_VERSION)
+                    .build(),
+                UserAgentMetadata.BrandVersion.Builder()
+                    .setBrand("Google Chrome")
+                    .setMajorVersion(DESKTOP_CHROME_MAJOR)
+                    .setFullVersion(DESKTOP_CHROME_VERSION)
+                    .build(),
+                UserAgentMetadata.BrandVersion.Builder()
+                    .setBrand("Not=A?Brand")
+                    .setMajorVersion("99")
+                    .setFullVersion("99.0.0.0")
+                    .build()
+            )
+            val builder = UserAgentMetadata.Builder()
+                .setBrandVersionList(brands)
+                .setFullVersion(DESKTOP_CHROME_VERSION)
+                .setPlatform("Windows")
+                .setPlatformVersion("10.0.0")
+                .setArchitecture("x86")
+                .setModel("")
+                .setMobile(false)
+                .setBitness(64)
+                .setWow64(false)
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS)) {
+                builder.setFormFactors(listOf(UserAgentMetadata.FORM_FACTOR_DESKTOP))
+            }
+            WebSettingsCompat.setUserAgentMetadata(webSettings, builder.build())
+        }.onFailure { Log.w("AuroraWebView", "User-Agent metadata failed", it) }
+    }
+
+    private fun configureServiceWorkers() {
+        runCatching {
+            val serviceWorkerSettings = ServiceWorkerController.getInstance().serviceWorkerWebSettings
+            serviceWorkerSettings.allowContentAccess = true
+            serviceWorkerSettings.allowFileAccess = false
+            serviceWorkerSettings.blockNetworkLoads = false
+            serviceWorkerSettings.cacheMode = WebSettings.LOAD_DEFAULT
+        }.onFailure { Log.w("AuroraWebView", "Service worker setup failed", it) }
+    }
+
+    private fun cachePageFavicon(icon: Bitmap?) {
+        if (isPrivate || icon == null || icon.width <= 0 || icon.height <= 0) return
+        val url = webView?.url ?: currentUrl
+        val domain = WebViewMappings.extractDomain(url)
+        if (domain.isBlank() || domain == "about:blank" || domain == lastCachedFaviconDomain) return
+        lastCachedFaviconDomain = domain
+        val copy = runCatching { icon.copy(Bitmap.Config.ARGB_8888, false) }.getOrNull() ?: icon
+        scope.launch {
+            runCatching {
+                DataService.faviconCache.put(domain, copy)
+                callbacks?.onFaviconChange(url)
+            }.onFailure { Log.w("AuroraWebView", "Favicon cache failed for $domain", it) }
+        }
     }
 
     private val pageClient = object : WebViewClient() {
@@ -417,6 +588,10 @@ class WebViewBrowserSession(
 
         override fun onReceivedTitle(view: WebView, title: String?) {
             title?.let { callbacks?.onTitleChange(it) }
+        }
+
+        override fun onReceivedIcon(view: WebView, icon: Bitmap?) {
+            cachePageFavicon(icon)
         }
 
         override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
@@ -570,16 +745,112 @@ class WebViewBrowserSession(
     companion object {
         private const val MAX_RENDERER_CRASHES = 3
 
-        private const val DEFAULT_DESKTOP_UA_FOR_ALL = true
+        private const val DEFAULT_DESKTOP_UA_FOR_ALL = false
+
+        private const val DESKTOP_CHROME_MAJOR = "139"
+        private const val DESKTOP_CHROME_VERSION = "139.0.0.0"
+        private const val DESKTOP_USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$DESKTOP_CHROME_VERSION Safari/537.36"
 
         private val PAGE_DIAG_SCRIPT = """
             (function(){try{var b=document.body;return 'ready='+document.readyState+' children='+(b?b.children.length:-1)+' bg='+(b?getComputedStyle(b).backgroundColor:'n/a')+' textLen='+(b?b.innerText.length:0)}catch(e){return 'err:'+e.message}})();
         """.trimIndent()
 
-        private val EARLY_DIAG_SCRIPT = """
+        private val BROWSER_COMPAT_SCRIPT = """
             (function(){
-              if(window.__auroraEarlyDiag) return;
-              window.__auroraEarlyDiag = true;
+              if (window.__auroraBrowserCompat) return;
+              try {
+                Object.defineProperty(window, '__auroraBrowserCompat', { value: true, configurable: false });
+              } catch(e) {
+                window.__auroraBrowserCompat = true;
+              }
+
+              var desktopUa = "$DESKTOP_USER_AGENT";
+              var chromeMajor = "$DESKTOP_CHROME_MAJOR";
+              var chromeFull = "$DESKTOP_CHROME_VERSION";
+              var brandVersions = [
+                { brand: 'Chromium', version: chromeMajor },
+                { brand: 'Google Chrome', version: chromeMajor },
+                { brand: 'Not=A?Brand', version: '99' }
+              ];
+              var fullVersionList = [
+                { brand: 'Chromium', version: chromeFull },
+                { brand: 'Google Chrome', version: chromeFull },
+                { brand: 'Not=A?Brand', version: '99.0.0.0' }
+              ];
+
+              function defineNavigatorValue(name, value) {
+                var proto = null;
+                try { proto = Object.getPrototypeOf(navigator); } catch(e) {}
+                var targets = [proto, navigator];
+                for (var i = 0; i < targets.length; i++) {
+                  if (!targets[i]) continue;
+                  try {
+                    Object.defineProperty(targets[i], name, {
+                      get: function(){ return value; },
+                      configurable: true
+                    });
+                    return;
+                  } catch(e) {}
+                }
+              }
+
+              defineNavigatorValue('userAgent', desktopUa);
+              defineNavigatorValue('appVersion', desktopUa.replace(/^Mozilla\//, ''));
+              defineNavigatorValue('platform', 'Win32');
+              defineNavigatorValue('vendor', 'Google Inc.');
+              defineNavigatorValue('maxTouchPoints', 0);
+
+              var uaData = {
+                brands: brandVersions,
+                mobile: false,
+                platform: 'Windows',
+                getHighEntropyValues: function(hints) {
+                  var values = {
+                    architecture: 'x86',
+                    bitness: '64',
+                    brands: brandVersions,
+                    fullVersionList: fullVersionList,
+                    mobile: false,
+                    model: '',
+                    platform: 'Windows',
+                    platformVersion: '10.0.0',
+                    uaFullVersion: chromeFull,
+                    wow64: false
+                  };
+                  var out = { brands: brandVersions, mobile: false, platform: 'Windows' };
+                  (hints || []).forEach(function(hint) {
+                    if (Object.prototype.hasOwnProperty.call(values, hint)) out[hint] = values[hint];
+                  });
+                  return Promise.resolve(out);
+                },
+                toJSON: function() {
+                  return { brands: brandVersions, mobile: false, platform: 'Windows' };
+                }
+              };
+              defineNavigatorValue('userAgentData', uaData);
+
+              try {
+                if (!window.chrome) {
+                  Object.defineProperty(window, 'chrome', {
+                    value: { app: { isInstalled: false }, runtime: {} },
+                    configurable: true
+                  });
+                } else {
+                  window.chrome.app = window.chrome.app || { isInstalled: false };
+                  window.chrome.runtime = window.chrome.runtime || {};
+                }
+              } catch(e) {}
+
+              (function(){
+                var mo = new MutationObserver(function(){
+                  var m = document.querySelector('meta[name=viewport]');
+                  if (m && m.getAttribute('content') && m.getAttribute('content').indexOf('interactive-widget') !== -1) {
+                    m.setAttribute('content', m.getAttribute('content').replace(/,\s*interactive-widget=[a-z-]+/g, ''));
+                  }
+                });
+                mo.observe(document.documentElement, {childList: true, subtree: true});
+              })();
               window.addEventListener('error', function(e){
                 console.log('AURORA_ERR ' + (e.message||'unknown') + ' @ ' + (e.filename||'') + ':' + (e.lineno||0));
               }, true);
@@ -589,9 +860,6 @@ class WebViewBrowserSession(
               });
             })();
         """.trimIndent()
-
-        private const val DESKTOP_USER_AGENT =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
 
         private val DESKTOP_REQUIRED_DOMAINS = setOf(
             "facebook.com", "fb.com", "fb.watch", "messenger.com", "m.me",

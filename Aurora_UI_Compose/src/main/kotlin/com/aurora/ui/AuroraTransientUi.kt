@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
@@ -101,6 +102,7 @@ internal fun BoxScope.AuroraTransientUi(
     realGpu: Int = 0,
     realNetwork: Long = 0
 ) {
+    val context = LocalContext.current
     if (browser.isKeyboardOpen) {
         Box(
             Modifier
@@ -118,6 +120,12 @@ internal fun BoxScope.AuroraTransientUi(
                 onDismiss = {
                     browser.isKeyboardOpen = false
                     home.isOmniboxFocused = false
+                    val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+                    val activity = context as? android.app.Activity
+                    val token = activity?.window?.decorView?.windowToken
+                    if (imm != null && token != null) {
+                        runCatching { imm.hideSoftInputFromWindow(token, 0) }
+                    }
                 }
             )
         }

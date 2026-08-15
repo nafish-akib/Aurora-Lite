@@ -131,6 +131,10 @@ class BrowserController(
         }
     }
 
+    override fun onFaviconChange(url: String) {
+        _state.update { it.copy(faviconVersion = System.currentTimeMillis()) }
+    }
+
     fun clearDownloadRequest() {
         _state.update { it.copy(downloadUrl = null, downloadFileName = null, downloadMimeType = null, savedDownloadFilePath = null) }
     }

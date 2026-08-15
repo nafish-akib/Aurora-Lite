@@ -16,6 +16,6 @@ data class BrowserState(
     val downloadUrl: String? = null,
     val downloadFileName: String? = null,
     val downloadMimeType: String? = null,
-    val savedDownloadFilePath: String? = null
+    val savedDownloadFilePath: String? = null,
+    val faviconVersion: Long = 0L
 )
-
