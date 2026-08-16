@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -815,7 +816,7 @@ val featuredCount = MockData.featuredStreamingSites.size
             }
         }
 
-        SideEffect { KeyBridge.isKeyboardOpen = browser.isKeyboardOpen }
+        SideEffect { KeyBridge.isKeyboardOpen = browser.isKeyboardOpen || showProfileSetup }
         LaunchedEffect(Unit) {
             KeyBridge.onDpad = handleDpadPress
             KeyBridge.onSelect = handleSelectPress
@@ -1316,6 +1317,19 @@ val featuredCount = MockData.featuredStreamingSites.size
 @Composable
 fun ProfileSetupDialog(onSave: (String) -> Unit) {
     var name by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val view = LocalView.current
+    val fieldFocus = remember { FocusRequester() }
+    var fieldFocused by remember { mutableStateOf(false) }
+    var buttonFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        fieldFocus.requestFocus()
+        delay(200)
+        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+        runCatching { imm?.showSoftInput(view, android.view.inputmethod.InputMethodManager.SHOW_FORCED) }
+    }
+
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.85f)), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier.background(Color(0xFF1A1C23), RoundedCornerShape(24.dp)).border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(24.dp)).padding(40.dp),
@@ -1328,14 +1342,26 @@ fun ProfileSetupDialog(onSave: (String) -> Unit) {
             Text("Welcome to Aurora", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Text("Enter your name to personalize your browsing experience.", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp, textAlign = TextAlign.Center)
             Box(
-                modifier = Modifier.fillMaxWidth().background(Color(0xFF0E0F14), RoundedCornerShape(12.dp)).border(1.dp, AuroraColors.auroraBlue.copy(alpha = 0.3f), RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(if (fieldFocused) Color(0xFF15161C) else Color(0xFF0E0F14), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (fieldFocused) AuroraColors.auroraBlue else AuroraColors.auroraBlue.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                    .onFocusChanged { fieldFocused = it.isFocused }
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 BasicTextField(
                     value = name,
                     onValueChange = { name = it.take(30) },
                     textStyle = TextStyle(color = Color.White, fontSize = 16.sp, textAlign = TextAlign.Center),
                     cursorBrush = SolidColor(AuroraColors.auroraBlue),
-                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Go),
+                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                        onGo = { if (name.isNotBlank()) onSave(name.trim()) }
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(fieldFocus),
                     decorationBox = { inner ->
                         if (name.isEmpty()) Text("Your name", color = Color.White.copy(alpha = 0.3f), fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                         inner()
@@ -1343,7 +1369,13 @@ fun ProfileSetupDialog(onSave: (String) -> Unit) {
                 )
             }
             Box(
-                modifier = Modifier.background(if (name.isBlank()) Color.White.copy(alpha = 0.1f) else AuroraColors.auroraBlue, RoundedCornerShape(12.dp)).padding(horizontal = 48.dp, vertical = 12.dp).clickable(enabled = name.isNotBlank()) { if (name.isNotBlank()) onSave(name.trim()) }
+                modifier = Modifier
+                    .background(if (name.isBlank()) Color.White.copy(alpha = 0.1f) else AuroraColors.auroraBlue, RoundedCornerShape(12.dp))
+                    .border(if (buttonFocused) 2.dp else 0.dp, Color.White, RoundedCornerShape(12.dp))
+                    .focusable()
+                    .onFocusChanged { buttonFocused = it.isFocused }
+                    .clickable(enabled = name.isNotBlank()) { if (name.isNotBlank()) onSave(name.trim()) }
+                    .padding(horizontal = 48.dp, vertical = 12.dp)
             ) {
                 Text("Let's Go", color = if (name.isBlank()) Color.White.copy(alpha = 0.3f) else Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
